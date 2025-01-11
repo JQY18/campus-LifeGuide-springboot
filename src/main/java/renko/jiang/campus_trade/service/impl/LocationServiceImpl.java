@@ -13,9 +13,11 @@ import renko.jiang.campus_trade.controller.admin.pojo.vo.LocationVO;
 import renko.jiang.campus_trade.mapper.LocationMapper;
 import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.service.LocationService;
+import renko.jiang.campus_trade.utils.FileUploadToURL;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 /**
@@ -25,10 +27,13 @@ import java.util.List;
 public class LocationServiceImpl implements LocationService {
     @Autowired
     private LocationMapper locationMapper;
+
+    @Autowired
+    private FileUploadToURL fileUploadToURL;
+
     @Override
     public Result<List<LocationVO>> getAllLocations() {
         List<Location> locations = locationMapper.getAllLocations();
-
 
         List<LocationVO> locationVOS = new ArrayList<>();
         if (locations != null) {
@@ -70,13 +75,33 @@ public class LocationServiceImpl implements LocationService {
     }
 
     @Override
-    public LocationVO updateLocation(Long id, LocationDTO locationDTO) {
-        return null;
+    public Result updateLocation(LocationDTO locationDTO) {
+        Location location = new Location();
+
+        BeanUtils.copyProperties(locationDTO,location);
+
+        if(locationDTO.getCoords() != null && locationDTO.getCoords().length == 2){
+            location.setX(locationDTO.getCoords()[0]);
+            location.setY(locationDTO.getCoords()[1]);
+        }
+
+        if(locationDTO.getImageFile() != null){
+            location.setImage(fileUploadToURL.handleFileUpload(locationDTO.getImageFile()));
+        }
+
+        if (locationMapper.updateLocation(location) > 0){
+            return Result.success();
+        }
+
+        return Result.error("更新失败");
     }
 
     @Override
-    public void deleteLocation(Long id) {
-
+    public Result deleteLocation(Long id) {
+        if (locationMapper.deleteLocation(id) > 0){
+            return Result.success();
+        }
+        return Result.error("删除失败");
     }
 
     /***
@@ -113,4 +138,30 @@ public class LocationServiceImpl implements LocationService {
         }
         return Result.error("提交失败");
     }
+
+    @Override
+    public Result addLocation(LocationDTO locationDTO) {
+        Location location = new Location();
+
+        BeanUtils.copyProperties(locationDTO,location);
+
+        String uuid = UUID.randomUUID().toString();
+        location.setDetailId(uuid);
+
+        if(locationDTO.getCoords() != null && locationDTO.getCoords().length == 2){
+            location.setX(locationDTO.getCoords()[0]);
+            location.setY(locationDTO.getCoords()[1]);
+        }
+
+        if(locationDTO.getImageFile() != null){
+            location.setImage(fileUploadToURL.handleFileUpload(locationDTO.getImageFile()));
+        }
+
+        if (locationMapper.addLocation(location) > 0){
+            return Result.success();
+        }
+
+        return Result.error("添加失败");
+    }
+
 }

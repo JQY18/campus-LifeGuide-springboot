@@ -1,12 +1,15 @@
 package renko.jiang.campus_trade.mapper;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import renko.jiang.campus_trade.controller.admin.pojo.dto.LocationDTO;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.DetailComment;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.Location;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.LocationDetail;
 import renko.jiang.campus_trade.controller.admin.pojo.vo.LocationVO;
+import renko.jiang.campus_trade.pojo.result.Result;
 
 import java.util.List;
 
@@ -17,7 +20,7 @@ import java.util.List;
 @Mapper
 public interface LocationMapper {
 
-    @Select("select * from location")
+    @Select("select * from location order by created_time desc")
     List<Location> getAllLocations();
 
     @Select("select * from location_detail where detail_id = #{detailId}")
@@ -41,4 +44,14 @@ public interface LocationMapper {
 
     @Insert("insert into detail_comment (detail_id, username, content) value (#{detailId},#{username},#{content})")
     int submitComment(DetailComment detailComment);
+
+
+    @Insert("insert into location (name,x,y,description,image,detail_id,category) value (#{name},#{x},#{y},#{description},#{image},#{detailId},#{category})")
+    Integer addLocation(Location location);
+
+    Integer updateLocation(Location location);
+
+
+    @Delete("delete from location where id = #{id}")
+    Integer deleteLocation(Long id);
 }

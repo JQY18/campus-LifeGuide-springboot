@@ -45,10 +45,17 @@ public class PostController {
      * @return
      */
     @GetMapping("/all")
-    public Result<List<PostVO>> getPosts(Integer userId) {
-        List<PostVO> list = postService.getAllPosts(userId);
+    public Result<List<PostVO>> getPosts(Integer userId,Integer currentUserId) {
+        System.out.println("userId = " + userId);
+        List<PostVO> list = postService.getAllPosts(userId, currentUserId);
         return Result.success(list);
     }
+
+    @PostMapping("/{postId}/like/{userId}")
+    Result likePost(@PathVariable Integer postId, @PathVariable Integer userId) {
+        return postService.likePost(postId, userId);
+    }
+
 
     /**
      * 根据id获取帖子

@@ -22,11 +22,13 @@ public interface LocationService {
 
     LocationVO createLocation(LocationDTO locationDTO);
 
-    LocationVO updateLocation(Long id, LocationDTO locationDTO);
+    Result updateLocation(LocationDTO locationDTO);
 
-    void deleteLocation(Long id);
+    Result deleteLocation(Long id);
 
     Result<List<DetailComment>> getCommentsById(String detailId);
 
     Result<String> submitComment(DetailCommentDTO detailCommentDTO);
+
+    Result addLocation(LocationDTO locationDTO);
 }

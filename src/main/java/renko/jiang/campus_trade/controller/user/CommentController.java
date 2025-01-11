@@ -48,6 +48,12 @@ public class CommentController {
     }
 
 
+    /**
+     * 点赞评论
+     *
+     * @param requestBody
+     * @return
+     */
     @PostMapping("/like")
     public Result likeComment(@RequestBody Map<String, Integer> requestBody) {
         Integer commentId = requestBody.get("commentId");
