@@ -3,8 +3,10 @@ package renko.jiang.campus_trade.service.impl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import renko.jiang.campus_trade.controller.admin.pojo.dto.DetailCommentDTO;
 import renko.jiang.campus_trade.controller.admin.pojo.dto.LocationDTO;
+import renko.jiang.campus_trade.controller.admin.pojo.dto.LocationDetailDTO;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.DetailComment;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.Location;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.LocationDetail;
@@ -55,9 +57,12 @@ public class LocationServiceImpl implements LocationService {
         if (locationDetail == null){
             return Result.error("获取失败");
         }
-        List<String> images = locationMapper.getImagesById(locationDetail.getImageId());
-        List<String> videos = locationMapper.getVideosById(locationDetail.getVideoId());
+        List<String> images = locationMapper.getImagesById(locationDetail.getId());
+        List<String> videos = locationMapper.getVideosById(locationDetail.getId());
+
         LocationDetailVO locationDetailVO = new LocationDetailVO();
+        locationDetailVO.setName(locationDetail.getName());
+        locationDetailVO.setDescription(locationDetail.getDescription());
         locationDetailVO.setImages(images);
         locationDetailVO.setVideos(videos);
 
@@ -164,4 +169,82 @@ public class LocationServiceImpl implements LocationService {
         return Result.error("添加失败");
     }
 
+    /***
+     * 上传详情
+     * @param locationDetailDTO
+     * @return
+     */
+    @Override
+    public Result updloadDetails(LocationDetailDTO locationDetailDTO) {
+        Integer id = locationMapper.selectDetailById(locationDetailDTO.getDetailId());
+        //存在id,更新details,否则新增
+        if(id != null){
+            LocationDetail locationDetail = new LocationDetail();
+            locationDetail.setId(id);
+            locationDetail.setName(locationDetailDTO.getName());
+            locationDetail.setDescription(locationDetailDTO.getDescription());
+
+            if (locationMapper.updateLocationDetails(locationDetail) > 0){
+                return Result.success();
+            }
+        }else{
+            //新增
+            LocationDetail locationDetail = new LocationDetail();
+            locationDetail.setName(locationDetailDTO.getName());
+            locationDetail.setDescription(locationDetailDTO.getDescription());
+            locationDetail.setDetailId(locationDetailDTO.getDetailId());
+            //新增成功则把图片地址和视频地址保存到数据库中
+            if (locationMapper.addLocationDetails(locationDetail) > 0){
+                return Result.success();
+            }
+        }
+        return Result.error("上传失败");
+    }
+
+
+    /***
+     * 上传图片
+     * @param detailId
+     * @param images
+     * @return
+     */
+    @Override
+    public Result addImages(String detailId, List<MultipartFile> images) {
+        LocationDetail locationDetail = locationMapper.getDetailById(detailId);
+        if (locationMapper.saveImages(locationDetail.getId(),fileUploadToURL.handleMultipleFileUpload(images)) > 0){
+            return Result.success();
+        }
+        return Result.error("上传失败");
+    }
+
+    /***
+     * 上传图片
+     * @param detailId
+     * @param videos
+     * @return
+     */
+    @Override
+    public Result addVideos(String detailId, List<MultipartFile> videos) {
+        LocationDetail locationDetail = locationMapper.getDetailById(detailId);
+        if (locationMapper.saveVideos(locationDetail.getId(),fileUploadToURL.handleMultipleFileUpload(videos)) > 0){
+            return Result.success();
+        }
+        return Result.error("上传失败");
+    }
+
+    @Override
+    public Result deleteImage(String imageUrl) {
+        if (locationMapper.deleteImage(imageUrl) > 0){
+            return Result.success();
+        }
+        return Result.error("删除失败");
+    }
+
+    @Override
+    public Result deleteVideo(String videoUrl) {
+        if (locationMapper.deleteVideo(videoUrl) > 0){
+            return Result.success();
+        }
+        return Result.error("删除失败");
+    }
 }

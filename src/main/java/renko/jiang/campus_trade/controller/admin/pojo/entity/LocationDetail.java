@@ -12,6 +12,5 @@ public class LocationDetail {
     private Integer id;
     private String name;
     private String description;
-    private Integer imageId;
-    private Integer videoId;
+    private String detailId;
 }
