@@ -22,5 +22,4 @@ public class GlobalAdvice {
         return Result.error(e.getMessage());
     }
 
-
 }
