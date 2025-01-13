@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="renko.jiang.campus_trade.mapper.LocationMapper">
+    <insert id="saveImages">
+        insert into location_images (location_detail_id, url)
+        values
+        <foreach collection="images" item="url" separator=",">
+            (#{id},#{url})
+        </foreach>
+    </insert>
+    <insert id="saveVideos">
+        insert into location_videos (location_detail_id, url)
+        values
+        <foreach collection="videos" item="url" separator=",">
+            (#{id},#{url})
+        </foreach>
+    </insert>
+
+
+
+    <update id="updateLocation">
+        update location
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="x != null">x = #{x},</if>
+            <if test="y != null">y = #{y},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="image != null">image = #{image},</if>
+            <if test="detailId != null">detail_id = #{detailId},</if>
+            <if test="category != null">category = #{category}</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateLocationDetails">
+        update location_detail
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description}</if>
+        </set>
+        where id = #{id}
+    </update>
+    <select id="getAllLocations" resultType="renko.jiang.campus_trade.controller.admin.pojo.entity.Location"
+            parameterType="java.lang.Integer">
+        select id,
+               name,
+               x,
+               y,
+               description,
+               image,
+               detail_id,
+               category,
+               created_time
+        from location
+        <where>
+            <if test="locationId != null and locationId != 0">
+                and id = #{locationId}
+            </if>
+        </where>
+        order by created_time desc
+    </select>
+</mapper>

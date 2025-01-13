@@ -3,6 +3,8 @@ package renko.jiang.campus_trade.controller.admin.pojo.entity;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 public class Location {
     private Long id;
@@ -14,4 +16,5 @@ public class Location {
     private String category;
     private Double x;
     private Double y;
+    private LocalDateTime createdTime;
 }

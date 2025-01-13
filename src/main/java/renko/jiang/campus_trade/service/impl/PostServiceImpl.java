@@ -12,8 +12,10 @@ import renko.jiang.campus_trade.pojo.dto.PostDTO;
 import renko.jiang.campus_trade.pojo.dto.PostSearchDTO;
 import renko.jiang.campus_trade.pojo.entity.Post;
 
+import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.pojo.vo.PostVO;
 import renko.jiang.campus_trade.service.PostService;
+import renko.jiang.campus_trade.utils.FileUploadToURL;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,9 +30,8 @@ public class PostServiceImpl implements PostService {
     @Autowired
     private PostMapper postMapper;
 
-    // 文件上传路径
-    @Value("${upload.path}")
-    private String path;
+    @Autowired
+    private FileUploadToURL fileUploadToURL;
 
     /**
      * 根据id获取帖子
@@ -48,8 +49,28 @@ public class PostServiceImpl implements PostService {
      * @return
      */
     @Override
-    public List<PostVO> getAllPosts(Integer userId) {
+    public List<PostVO> getAllPosts(Integer userId, Integer currentUserId) {
         List<PostVO> postVOS = postMapper.getAllPosts(userId);
+
+        // 获取帖子点赞数和评论数
+        for (PostVO postVO : postVOS){
+            Integer likes = postMapper.getLikes(postVO.getId());
+            postVO.setLikes(likes);
+
+            Integer comments = postMapper.getComments(postVO.getId());
+            postVO.setComments(comments);
+
+            if (currentUserId != null){
+                Integer isLiked = postMapper.isLiked(postVO.getId(), currentUserId);
+                if (isLiked != null && isLiked != 0){
+                    postVO.setIsLiked(true);
+                }else {
+                    postVO.setIsLiked(false);
+                }
+            }else{
+                postVO.setIsLiked(false);
+            }
+        }
         return postVOS;
     }
 
@@ -71,7 +92,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public void addPost(PostDTO postDTO) {
         // 转换图片为静态资源映射地址
-        List<String> images = handleMultipleFileUpload(postDTO.getImages());
+        List<String> images = fileUploadToURL.handleMultipleFileUpload(postDTO.getImages());
 
         Post post = new Post();
         BeanUtils.copyProperties(postDTO,post);
@@ -93,44 +114,16 @@ public class PostServiceImpl implements PostService {
         return postVOS;
     }
 
-
-    /**
-     * 处理多文件上传
-     * @param files
-     * @return
-     */
-    public List<String> handleMultipleFileUpload(List<MultipartFile> files) {
-        // 存储上传的图片的路径
-        List<String> images = new ArrayList<>();
-        if (files == null || files.isEmpty()) {
-            throw new RuntimeException("No files uploaded");
+    @Override
+    public Result likePost(Integer postId, Integer userId) {
+        Integer liked = postMapper.isLiked(postId, userId);
+        if (liked == null || liked == 0){
+            postMapper.addLike(postId,userId);
+            return Result.success();
+        }else {
+            postMapper.deleteLike(postId,userId);
+            return Result.error("取消点赞");
         }
-        for (MultipartFile file : files) {
-            if (!file.isEmpty()) {
-                try {
-                    // 生成UUID
-                    String uuid = UUID.randomUUID().toString();
-                    // 文件扩展名
-                    String originalFilename = file.getOriginalFilename();
-                    String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-                    // 构建新的文件名
-                    String newFileName = uuid + fileExtension;
-
-                    // 构建文件路径
-                    Path path = Paths.get(this.path, newFileName);
-                    // 将MultipartFile写入文件系统
-                    Files.write(path, file.getBytes());
-
-                    // 收集该帖子id对应的图片的静态资源映射地址
-                    images.add("http://localhost:8080/image/"+newFileName);
-
-                    System.out.println("File saved successfully at: " + path.toString());
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to save file", e);
-                }
-            }
-        }
-        // 将生成的静态资源映射地址返回
-        return images;
     }
+
 }

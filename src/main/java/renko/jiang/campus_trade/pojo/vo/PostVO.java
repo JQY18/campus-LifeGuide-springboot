@@ -13,4 +13,7 @@ public class PostVO {
     private String content;
     private List<String> images;
     private String createTime;
+    private Integer likes;
+    private Boolean isLiked;
+    private Integer comments;
 }

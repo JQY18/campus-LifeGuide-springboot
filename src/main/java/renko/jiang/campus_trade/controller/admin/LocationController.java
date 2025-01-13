@@ -30,8 +30,8 @@ public class LocationController {
      * @return
      */
     @GetMapping
-    public Result<List<LocationVO>> getAllLocations() {
-        return locationService.getAllLocations();
+    public Result<List<LocationVO>> getAllLocations(Integer locationId) {
+        return locationService.getAllLocations(locationId);
     }
 
     /***
@@ -64,23 +64,29 @@ public class LocationController {
         return locationService.submitComment(detailCommentDTO);
     }
 
-//    @GetMapping("/{id}")
-    public LocationVO getLocationById(@PathVariable Long id) {
-        return locationService.getLocationById(id);
+
+    /***
+     * 添加位置
+     * @param locationDTO
+     * @return
+     */
+    @PostMapping("/add")
+    public Result addLocation(LocationDTO locationDTO) {
+        return locationService.addLocation(locationDTO);
     }
 
-//    @PostMapping
-    public LocationVO createLocation(@RequestBody LocationDTO locationDTO) {
-        return locationService.createLocation(locationDTO);
+    /***
+     * 修改位置
+     * @param locationDTO
+     * @return
+     */
+    @PostMapping("/update")
+    public Result updateLocation(LocationDTO locationDTO) {
+        return locationService.updateLocation(locationDTO);
     }
 
-//    @PutMapping("/{id}")
-    public LocationVO updateLocation(@PathVariable Long id, @RequestBody LocationDTO locationDTO) {
-        return locationService.updateLocation(id, locationDTO);
-    }
-
-//    @DeleteMapping("/{id}")
-    public void deleteLocation(@PathVariable Long id) {
-        locationService.deleteLocation(id);
+    @DeleteMapping("/delete/{id}")
+    public Result deleteLocation(@PathVariable Long id) {
+        return locationService.deleteLocation(id);
     }
 }
