@@ -18,8 +18,8 @@ import java.util.List;
 @Mapper
 public interface LocationMapper {
 
-    @Select("select * from location order by created_time desc")
-    List<Location> getAllLocations();
+//    @Select("select * from location order by created_time desc")
+    List<Location> getAllLocations(Integer locationId);
 
     @Select("select * from location_detail where detail_id = #{detailId}")
     LocationDetail getDetailById(String detailId);

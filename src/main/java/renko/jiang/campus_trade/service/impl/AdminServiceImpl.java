@@ -11,16 +11,16 @@ import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.service.AdminService;
 import renko.jiang.campus_trade.service.UserService;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AdminServiceImpl implements AdminService {
     @Autowired
     private AdminMapper adminMapper;
-
-    @Autowired
-    private UserService userService;
 
     @Override
     public Result<AdminVO> login(AdminDTO adminDTO) {
@@ -70,6 +70,7 @@ public class AdminServiceImpl implements AdminService {
             adminVO.setId(admin.getId());
             adminVO.setUsername(admin.getUsername());
             adminVO.setLocationId(admin.getLocationId());
+            adminVO.setCreatedTime(admin.getCreatedTime());
             return Result.success(adminVO);
         }
         return Result.error("获取失败");
@@ -124,5 +125,27 @@ public class AdminServiceImpl implements AdminService {
             return Result.success("修改成功");
         }
         return Result.error("修改失败");
+    }
+
+    @Override
+    public Result<Map<String, Long>> getUserCount() {
+        Long count = adminMapper.countUser();
+        //本周注册量
+        LocalDate to = LocalDate.now();
+        LocalDate from = to.minusDays(to.getDayOfWeek().getValue() - 1);
+        Long weekCount = adminMapper.countUserByDate(from);
+        Map<String, Long> map = Map.of("userCount", count, "userTrend", weekCount);
+        return Result.success(map);
+    }
+
+    @Override
+    public Result<Map<String, Long>> getLocationCount() {
+        Long count = adminMapper.countLocation();
+        //本周注册量
+        LocalDate to = LocalDate.now();
+        LocalDate from = to.minusDays(to.getDayOfWeek().getValue() - 1);
+        Long weekCount = adminMapper.countLocationByDate(from);
+        Map<String, Long> map = Map.of("locationCount", count, "locationTrend", weekCount);
+        return Result.success(map);
     }
 }

@@ -9,12 +9,16 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import renko.jiang.campus_trade.config.json.JacksonObjectMapper;
+import renko.jiang.campus_trade.interceptor.PVCountInterceptor;
+import renko.jiang.campus_trade.mapper.StatisticsMapper;
 
 import java.util.List;
 
 @Configuration
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
+    @Autowired
+    private PVCountInterceptor pvCountInterceptor;
 
     /**
      * 注册自定义拦截器
@@ -25,7 +29,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
-
+        registry.addInterceptor(pvCountInterceptor)
+                .addPathPatterns("/**")
+                .excludePathPatterns("/admin/**");
     }
 
     @Value("${upload.path}")

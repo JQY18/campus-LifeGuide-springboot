@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.*;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.Admin;
 import renko.jiang.campus_trade.pojo.entity.User;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Mapper
@@ -36,4 +37,16 @@ public interface AdminMapper {
 
     @Select("select name from location where id = #{locationId}")
     String getLocationNameById(Integer locationId);
+
+    @Select("select count(*) from user")
+    Long countUser();
+
+    @Select("select count(*) from user where create_time >= #{from}")
+    Long countUserByDate(LocalDate from);
+
+    @Select("select count(*) from location")
+    Long countLocation();
+
+    @Select("select count(*) from location where created_time >= #{from}")
+    Long countLocationByDate(LocalDate from);
 }

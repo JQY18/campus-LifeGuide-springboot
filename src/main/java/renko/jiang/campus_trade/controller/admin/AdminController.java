@@ -21,6 +21,26 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+
+    /***
+     * 统计地点数
+     *
+     */
+    @GetMapping("/dashboard/countLocation")
+    public Result<Map<String, Long>> getLocationCount() {
+        return adminService.getLocationCount();
+    }
+
+
+    /***
+     * 统计用户总数
+     *
+     */
+    @GetMapping("/dashboard/countUser")
+    public Result<Map<String, Long>> getUserCount() {
+        return adminService.getUserCount();
+    }
+
     /**
      * 登录
      */

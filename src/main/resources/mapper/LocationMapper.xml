@@ -40,4 +40,23 @@
         </set>
         where id = #{id}
     </update>
+    <select id="getAllLocations" resultType="renko.jiang.campus_trade.controller.admin.pojo.entity.Location"
+            parameterType="java.lang.Integer">
+        select id,
+               name,
+               x,
+               y,
+               description,
+               image,
+               detail_id,
+               category,
+               created_time
+        from location
+        <where>
+            <if test="locationId != null and locationId != 0">
+                and id = #{locationId}
+            </if>
+        </where>
+        order by created_time desc
+    </select>
 </mapper>

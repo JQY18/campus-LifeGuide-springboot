@@ -6,6 +6,7 @@ import renko.jiang.campus_trade.pojo.entity.User;
 import renko.jiang.campus_trade.pojo.result.Result;
 
 import java.util.List;
+import java.util.Map;
 
 public interface AdminService {
 
@@ -24,4 +25,8 @@ public interface AdminService {
     Result addAdmin(AdminDTO adminDTO);
 
     Result<String> update(AdminDTO adminDTO);
+
+    Result<Map<String, Long>> getUserCount();
+
+    Result<Map<String, Long>> getLocationCount();
 }

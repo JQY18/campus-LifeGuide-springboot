@@ -34,8 +34,8 @@ public class LocationServiceImpl implements LocationService {
     private FileUploadToURL fileUploadToURL;
 
     @Override
-    public Result<List<LocationVO>> getAllLocations() {
-        List<Location> locations = locationMapper.getAllLocations();
+    public Result<List<LocationVO>> getAllLocations(Integer locationId) {
+        List<Location> locations = locationMapper.getAllLocations(locationId);
 
         List<LocationVO> locationVOS = new ArrayList<>();
         if (locations != null) {
@@ -43,7 +43,7 @@ public class LocationServiceImpl implements LocationService {
             for (Location location : locations){
                 LocationVO locationVO = new LocationVO();
                 BeanUtils.copyProperties(location,locationVO);
-                locationVO.setCoords(new Double[]{location.getX(),location.getX()});
+                locationVO.setCoords(new Double[]{location.getX(),location.getY()});
                 locationVOS.add(locationVO);
             }
             return Result.success(locationVOS);

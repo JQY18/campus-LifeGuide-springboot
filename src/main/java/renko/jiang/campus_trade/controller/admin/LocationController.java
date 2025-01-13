@@ -30,8 +30,8 @@ public class LocationController {
      * @return
      */
     @GetMapping
-    public Result<List<LocationVO>> getAllLocations() {
-        return locationService.getAllLocations();
+    public Result<List<LocationVO>> getAllLocations(Integer locationId) {
+        return locationService.getAllLocations(locationId);
     }
 
     /***

@@ -16,7 +16,7 @@ import java.util.List;
  * @author 86132
  */
 public interface LocationService {
-    Result<List<LocationVO>> getAllLocations();
+    Result<List<LocationVO>> getAllLocations(Integer locationId);
 
     Result<LocationDetailVO> getDetailById(String detailId);
 
