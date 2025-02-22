@@ -210,9 +210,21 @@ public class LocationServiceImpl implements LocationService {
      */
     @Override
     public Result addImages(String detailId, List<MultipartFile> images) {
-        LocationDetail locationDetail = locationMapper.getDetailById(detailId);
-        if (locationMapper.saveImages(locationDetail.getId(),fileUploadToURL.handleMultipleFileUpload(images)) > 0){
-            return Result.success();
+        Integer id = locationMapper.selectDetailById(detailId);
+        //存在id,更新details,否则新增
+        if (id == null){
+            LocationDetail locationDetail = new LocationDetail();
+            locationDetail.setName("");
+            locationDetail.setDescription("");
+            locationDetail.setDetailId(detailId);
+            if (locationMapper.addLocationDetails(locationDetail) > 0){
+                locationMapper.saveImages(locationDetail.getId(),fileUploadToURL.handleMultipleFileUpload(images));
+                return Result.success();
+            }
+        }else{
+            if (locationMapper.saveImages(id,fileUploadToURL.handleMultipleFileUpload(images)) > 0){
+                return Result.success();
+            }
         }
         return Result.error("上传失败");
     }
@@ -225,9 +237,21 @@ public class LocationServiceImpl implements LocationService {
      */
     @Override
     public Result addVideos(String detailId, List<MultipartFile> videos) {
-        LocationDetail locationDetail = locationMapper.getDetailById(detailId);
-        if (locationMapper.saveVideos(locationDetail.getId(),fileUploadToURL.handleMultipleFileUpload(videos)) > 0){
-            return Result.success();
+        Integer id = locationMapper.selectDetailById(detailId);
+        //存在id,更新details,否则新增
+        if (id == null){
+            LocationDetail locationDetail = new LocationDetail();
+            locationDetail.setName("");
+            locationDetail.setDescription("");
+            locationDetail.setDetailId(detailId);
+            if (locationMapper.addLocationDetails(locationDetail) > 0){
+                locationMapper.saveVideos(locationDetail.getId(),fileUploadToURL.handleMultipleFileUpload(videos));
+                return Result.success();
+            }
+        }else{
+            if (locationMapper.saveVideos(id,fileUploadToURL.handleMultipleFileUpload(videos)) > 0){
+                return Result.success();
+            }
         }
         return Result.error("上传失败");
     }

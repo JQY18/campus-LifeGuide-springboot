@@ -60,7 +60,7 @@ public interface LocationMapper {
 
     @Options(useGeneratedKeys = true, keyProperty = "id")
     @Insert("insert into location_detail (detail_id, name, description) value (#{detailId},#{name},#{description})")
-    int addLocationDetails(LocationDetail locationDetail);
+    Integer addLocationDetails(LocationDetail locationDetail);
 
     Integer updateLocationDetails(LocationDetail locationDetail);
 
