@@ -49,4 +49,7 @@ public interface AdminMapper {
 
     @Select("select count(*) from location where created_time >= #{from}")
     Long countLocationByDate(LocalDate from);
+
+    @Select("select username from admin where id = #{publisher}")
+    String queryUsernameById(Integer publisher);
 }

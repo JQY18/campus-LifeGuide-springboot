@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="renko.jiang.campus_trade.mapper.NoticeMapper">
+
+    <!--  更新公告  -->
+    <update id="updateNotice" parameterType="renko.jiang.campus_trade.controller.admin.pojo.entity.Notice">
+        update notice
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="publisher != null">publisher = #{publisher},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--  统计符合条件的total值  -->
+    <select id="pageQueryNoticeCount" resultType="java.lang.Integer"
+            parameterType="renko.jiang.campus_trade.controller.admin.pojo.dto.NoticeDTO">
+        select count(1)
+        from notice
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="title != null and title != ''">
+                and title like concat('%',#{title},'%')
+            </if>
+            <if test="content != null and content != ''">
+                and content like concat('%',#{content},'%')
+            </if>
+            <if test="type != null and type != ''">
+                and type = #{type}
+            </if>
+            <if test="publisher != null and publisher != ''">
+                and publisher = #{publisher}
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and create_time &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+
+    <!--  分页查询  -->
+    <select id="pageQueryNotice" resultType="renko.jiang.campus_trade.controller.admin.pojo.entity.Notice">
+        select id,
+        title,
+        content,
+        type,
+        publisher,
+        create_time
+        from notice
+        <where>
+            <if test="noticeDTO.id != null and noticeDTO.id != ''">
+                and id = #{noticeDTO.id}
+            </if>
+            <if test="noticeDTO.title != null and noticeDTO.title != ''">
+                and title like concat('%',#{noticeDTO.title},'%')
+            </if>
+            <if test="noticeDTO.content != null and noticeDTO.content != ''">
+                and content like concat('%',#{noticeDTO.content},'%')
+            </if>
+            <if test="noticeDTO.type != null and noticeDTO.type != ''">
+                and type = #{noticeDTO.type}
+            </if>
+            <if test="noticeDTO.publisher != null and noticeDTO.publisher != ''">
+                and publisher = #{noticeDTO.publisher}
+            </if>
+            <if test="noticeDTO.startTime != null and noticeDTO.startTime != ''">
+                and create_time &gt;= #{noticeDTO.startTime}
+            </if>
+            <if test="noticeDTO.endTime != null and noticeDTO.endTime != ''">
+                and create_time &lt;= #{noticeDTO.endTime}
+            </if>
+        </where>
+        order by create_time desc
+        limit #{start},#{pageSize}
+    </select>
+</mapper>
