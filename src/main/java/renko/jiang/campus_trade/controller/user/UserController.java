@@ -8,11 +8,14 @@ import org.springframework.web.multipart.MultipartFile;
 import renko.jiang.campus_trade.pojo.dto.LoginDTO;
 import renko.jiang.campus_trade.pojo.dto.UserInfoDTO;
 import renko.jiang.campus_trade.pojo.entity.User;
+import renko.jiang.campus_trade.pojo.result.PageResult;
 import renko.jiang.campus_trade.pojo.result.Result;
+import renko.jiang.campus_trade.pojo.vo.PostVO;
 import renko.jiang.campus_trade.pojo.vo.UserInfoVO;
 
 import renko.jiang.campus_trade.service.UserService;
 
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "*")
@@ -21,7 +24,6 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private UserService userService;
-
 
     /**
      * 登录
@@ -113,5 +115,20 @@ public class UserController {
     public Result updatePassword(@RequestBody Map<String, Object> params) {
         userService.updatePassword((Integer) params.get("id"), (String) params.get("currentPassword"), (String) params.get("newPassword"));
         return Result.success();
+    }
+
+
+    @GetMapping("/page")
+    public Result<PageResult<UserInfoVO>> getPosts(UserInfoDTO userInfoDTO) {
+        return userService.page(userInfoDTO);
+    }
+
+
+    /**
+     * 删除用户
+     */
+    @DeleteMapping("/{id}")
+    public Result deleteUser(@PathVariable Integer id) {
+        return userService.deleteUser(id);
     }
 }

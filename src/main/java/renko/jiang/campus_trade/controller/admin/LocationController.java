@@ -8,6 +8,7 @@ import renko.jiang.campus_trade.controller.admin.pojo.entity.DetailComment;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.Location;
 import renko.jiang.campus_trade.controller.admin.pojo.vo.LocationDetailVO;
 import renko.jiang.campus_trade.controller.admin.pojo.vo.LocationVO;
+import renko.jiang.campus_trade.pojo.result.PageResult;
 import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.service.LocationService;
 
@@ -42,6 +43,23 @@ public class LocationController {
     @GetMapping("/detail/{detailId}")
     public Result<LocationDetailVO> getDetailById(@PathVariable String detailId) {
         return locationService.getDetailById(detailId);
+    }
+
+
+    /**
+     * 根据地点评论的id删除评论
+     * @param id
+     * @return
+     */
+    @DeleteMapping("/comments/{id}")
+    public Result deleteComment(@PathVariable Integer id) {
+        return locationService.deleteLocationCommentById(id);
+    }
+
+
+    @GetMapping("/comments/page")
+    public Result<PageResult<DetailComment>> getCommentsByPage(DetailCommentDTO detailCommentDTO){
+        return locationService.queryCommentsByPage(detailCommentDTO);
     }
 
     /***

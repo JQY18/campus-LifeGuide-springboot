@@ -20,6 +20,8 @@ public class User implements Serializable {
 
     private String password;
 
+    private String avatar;
+
     private String nickname;
 
     private String gender;

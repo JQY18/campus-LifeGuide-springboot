@@ -10,7 +10,7 @@ import java.util.List;
 public interface PostService {
     PostVO getPostById(Integer id);
 
-    List<PostVO> getAllPosts(Integer userId, Integer currentUserId);
+    List<PostVO> getAllPosts(Integer userId);
 
     void addImages(Integer postId, List<String> url);
 
@@ -19,4 +19,9 @@ public interface PostService {
     List<PostVO> searchPost(PostSearchDTO postSearchDTO);
 
     Result likePost(Integer postId, Integer userId);
+
+    Result collectPost(Integer postId);
+
+    Result<List<PostVO>> getCollections(Integer userId);
+
 }

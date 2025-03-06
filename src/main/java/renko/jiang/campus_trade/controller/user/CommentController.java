@@ -1,6 +1,5 @@
 package renko.jiang.campus_trade.controller.user;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import renko.jiang.campus_trade.pojo.dto.CommentDTO;

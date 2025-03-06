@@ -16,7 +16,7 @@
         where id = #{userId};
     </update>
 
-    <!--     修改用户信息  -->
+    <!--     修改用户信息 (在用) -->
     <update id="updateUserInfo">
         update user
         <set>
@@ -27,5 +27,46 @@
         </set>
         where id = #{id};
     </update>
+
+    <!--  分页查询时，count符合条件的总数  -->
+    <select id="countByCondition" resultType="java.lang.Integer"
+            parameterType="renko.jiang.campus_trade.pojo.entity.User">
+        select count(1) from user
+        <where>
+            <if test="username != null and username.trim() != ''">
+                AND username like concat('%', #{username}, '%')
+            </if>
+            <if test="nickname != null and nickname.trim() != ''">
+                AND nickname like concat('%', #{nickname}, '%')
+            </if>
+            <if test="gender != null">
+                AND gender = #{gender}
+            </if>
+            <if test="age != null">
+                AND age = #{age}
+            </if>
+            <if test="school != null and school.trim() != ''">
+                AND school like concat('%', #{school}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!--  分页查询  -->
+    <select id="pageQueryByCondition" resultType="renko.jiang.campus_trade.pojo.entity.User">
+        select * from user
+        <where>
+            <if test="user.username != null and user.username != ''">username like concat('%', #{user.username}, '%')
+            </if>
+            <if test="user.nickname != null and user.nickname != ''">and nickname like concat('%', #{user.nickname},
+                '%')
+            </if>
+            <if test="user.gender != null and user.gender != ''">and gender = #{user.gender}</if>
+            <if test="user.age != null and user.age != ''">and age = #{user.age}</if>
+            <if test="user.school != null and user.school != ''">and school like concat('%', #{user.school}, '%')</if>
+            <if test="user.createTime != null">and create_time &gt;= #{user.createTime}</if>
+        </where>
+        order by create_time desc
+        limit #{start}, #{pageSize}
+    </select>
 
 </mapper>

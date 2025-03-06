@@ -13,6 +13,7 @@ import renko.jiang.campus_trade.controller.admin.pojo.entity.LocationDetail;
 import renko.jiang.campus_trade.controller.admin.pojo.vo.LocationDetailVO;
 import renko.jiang.campus_trade.controller.admin.pojo.vo.LocationVO;
 import renko.jiang.campus_trade.mapper.LocationMapper;
+import renko.jiang.campus_trade.pojo.result.PageResult;
 import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.service.LocationService;
 import renko.jiang.campus_trade.utils.FileUploadToURL;
@@ -270,5 +271,36 @@ public class LocationServiceImpl implements LocationService {
             return Result.success();
         }
         return Result.error("删除失败");
+    }
+
+    @Override
+    public Result deleteLocationCommentById(Integer id) {
+        if (locationMapper.deleteLocationCommentById(id) > 0){
+            return Result.success();
+        }
+        return Result.error("删除失败");
+    }
+
+    @Override
+    public Result<PageResult<DetailComment>> queryCommentsByPage(DetailCommentDTO detailCommentDTO) {
+        PageResult<DetailComment> pageResult = new PageResult<>();
+        //数据库中的起始位置
+        int start = (detailCommentDTO.getPageNo() - 1) * detailCommentDTO.getPageSize();
+
+        int total = locationMapper.queryCommentsByPageCount(detailCommentDTO);
+        if (total == 0){
+            return Result.success(pageResult);
+        }
+
+        //分页查询
+        List<DetailComment> detailComments = locationMapper.queryCommentsByPage(detailCommentDTO, start, detailCommentDTO.getPageSize());
+        if (detailComments != null){
+            pageResult.setRecords(detailComments);
+            pageResult.setTotal(total);
+            pageResult.setPageNo(detailCommentDTO.getPageNo());
+            pageResult.setPageSize(detailCommentDTO.getPageSize());
+            return Result.success(pageResult);
+        }
+        return Result.error("查询失败");
     }
 }

@@ -7,11 +7,14 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import renko.jiang.campus_trade.context.UserContextHolder;
 import renko.jiang.campus_trade.mapper.PostMapper;
+import renko.jiang.campus_trade.mapper.UserMapper;
 import renko.jiang.campus_trade.pojo.dto.PostDTO;
 import renko.jiang.campus_trade.pojo.dto.PostSearchDTO;
 import renko.jiang.campus_trade.pojo.entity.Post;
 
+import renko.jiang.campus_trade.pojo.entity.User;
 import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.pojo.vo.PostVO;
 import renko.jiang.campus_trade.service.PostService;
@@ -31,6 +34,9 @@ public class PostServiceImpl implements PostService {
     private PostMapper postMapper;
 
     @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
     private FileUploadToURL fileUploadToURL;
 
     /**
@@ -48,10 +54,18 @@ public class PostServiceImpl implements PostService {
      * 获取所有帖子
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public List<PostVO> getAllPosts(Integer userId, Integer currentUserId) {
+    public List<PostVO> getAllPosts(Integer userId) {
         List<PostVO> postVOS = postMapper.getAllPosts(userId);
 
+        Integer currentUserId = UserContextHolder.getUserId();
+        fillPostVOS(currentUserId, postVOS);
+
+        return postVOS;
+    }
+
+    private void fillPostVOS(Integer currentUserId, List<PostVO> postVOS) {
         // 获取帖子点赞数和评论数
         for (PostVO postVO : postVOS){
             Integer likes = postMapper.getLikes(postVO.getId());
@@ -60,18 +74,35 @@ public class PostServiceImpl implements PostService {
             Integer comments = postMapper.getComments(postVO.getId());
             postVO.setComments(comments);
 
+            //获取帖子的图片
+            List<String> imagesByPostId = postMapper.getImagesByPostId(postVO.getId());
+            postVO.setImages(imagesByPostId);
+
+            //帖子的用户信息
+            User user = userMapper.queryUserById(postVO.getUserId());
+            postVO.setUsername(user.getNickname());
+            postVO.setAvatar(user.getAvatar());
+
             if (currentUserId != null){
+                // 判断是否点赞
                 Integer isLiked = postMapper.isLiked(postVO.getId(), currentUserId);
                 if (isLiked != null && isLiked != 0){
                     postVO.setIsLiked(true);
                 }else {
                     postVO.setIsLiked(false);
                 }
+                // 判断是否收藏
+                int count = postMapper.isCollected(currentUserId, postVO.getId());
+                if (count != 0){
+                    postVO.setIsCollected(true);
+                }else {
+                    postVO.setIsCollected(false);
+                }
             }else{
                 postVO.setIsLiked(false);
+                postVO.setIsCollected(false);
             }
         }
-        return postVOS;
     }
 
     /**
@@ -126,4 +157,27 @@ public class PostServiceImpl implements PostService {
         }
     }
 
+    @Override
+    public Result collectPost(Integer postId) {
+        //首先去数据库查找
+        Integer userId = UserContextHolder.getUserId();
+        if(postMapper.isCollected(userId,postId) > 0){
+            //已经收藏了，取消收藏
+            postMapper.deleteCollect(userId, postId);
+        }else{
+            postMapper.addCollect(userId,postId);
+        }
+        return Result.success();
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Result<List<PostVO>> getCollections(Integer userId) {
+        //获取当前登录用户
+        int currentUserId = UserContextHolder.getUserId();
+        List<PostVO> postVOS = postMapper.getUserCollections(userId);
+        fillPostVOS(currentUserId, postVOS);
+        return Result.success(postVOS);
+    }
 }

@@ -41,4 +41,18 @@ public interface PostMapper {
 
     @Select("select count(1) from comment where post_id = #{id}")
     Integer getComments(Integer id);
+
+    @Select("select count(1) from post_collect where user_id = #{userId} and post_id = #{postId}")
+    int isCollected(Integer userId, Integer postId);
+
+    @Insert("insert into post_collect set user_id = #{userId}, post_id = #{postId}")
+    void addCollect(Integer userId, Integer postId);
+
+    @Insert("delete from post_collect where user_id = #{userId} and post_id = #{postId}")
+    void deleteCollect(Integer userId, Integer postId);
+
+    List<PostVO> getUserCollections(int userId);
+
+    @Select("select count(1) from post_collect where user_id = #{userId}")
+    int getUserCollectionsCount(Integer userId);
 }

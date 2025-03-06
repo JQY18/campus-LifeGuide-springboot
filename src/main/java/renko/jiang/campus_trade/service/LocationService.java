@@ -8,6 +8,7 @@ import renko.jiang.campus_trade.controller.admin.pojo.dto.LocationDetailDTO;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.DetailComment;
 import renko.jiang.campus_trade.controller.admin.pojo.vo.LocationDetailVO;
 import renko.jiang.campus_trade.controller.admin.pojo.vo.LocationVO;
+import renko.jiang.campus_trade.pojo.result.PageResult;
 import renko.jiang.campus_trade.pojo.result.Result;
 
 import java.util.List;
@@ -43,4 +44,8 @@ public interface LocationService {
     Result deleteImage(String imageUrl);
 
     Result deleteVideo(String videoUrl);
+
+    Result deleteLocationCommentById(Integer id);
+
+    Result<PageResult<DetailComment>> queryCommentsByPage(DetailCommentDTO detailCommentDTO);
 }

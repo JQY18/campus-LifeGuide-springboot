@@ -9,7 +9,8 @@ public class UserInfoVO {
     private String username;
     private String nickname;
     private String gender;
-    private String age;
+    private Integer age;
     private String avatar;
     private String school;
+    private Integer collections;
 }

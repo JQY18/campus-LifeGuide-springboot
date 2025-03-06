@@ -73,4 +73,16 @@
         </where>
         order by create_time desc
     </select>
+    <select id="getUserCollections" resultType="renko.jiang.campus_trade.pojo.vo.PostVO">
+        select p.id,
+        p.user_id,
+        p.category,
+        p.title,
+        p.content,
+        p.create_time
+        from post_collect pc
+        join post p on pc.post_id = p.id
+        where pc.user_id = #{userId}
+        order by p.create_time desc
+    </select>
 </mapper>

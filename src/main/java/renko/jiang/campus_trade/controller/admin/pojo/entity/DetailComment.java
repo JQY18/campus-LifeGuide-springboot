@@ -9,8 +9,8 @@ import lombok.Data;
 @Data
 public class DetailComment {
     private Integer id;
-    private String detailId;
     private String username;
+    private String detailId;
     private String content;
     private String time;
 }

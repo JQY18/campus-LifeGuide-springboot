@@ -1,6 +1,7 @@
 package renko.jiang.campus_trade.mapper;
 
 import org.apache.ibatis.annotations.*;
+import renko.jiang.campus_trade.controller.admin.pojo.dto.DetailCommentDTO;
 import renko.jiang.campus_trade.controller.admin.pojo.dto.LocationDTO;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.DetailComment;
 import renko.jiang.campus_trade.controller.admin.pojo.entity.Location;
@@ -74,4 +75,11 @@ public interface LocationMapper {
 
     @Delete("delete from location_videos where url = #{videoUrl}")
     Integer deleteVideo(String videoUrl);
+
+    @Delete("delete from detail_comment where id = #{id}")
+    int deleteLocationCommentById(Integer id);
+
+    List<DetailComment> queryCommentsByPage(DetailCommentDTO detailCommentDTO, int start, Integer pageSize);
+
+    int queryCommentsByPageCount(DetailCommentDTO detailCommentDTO);
 }

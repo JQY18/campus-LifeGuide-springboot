@@ -4,6 +4,8 @@ import org.springframework.web.multipart.MultipartFile;
 import renko.jiang.campus_trade.pojo.dto.LoginDTO;
 import renko.jiang.campus_trade.pojo.dto.UserInfoDTO;
 import renko.jiang.campus_trade.pojo.entity.User;
+import renko.jiang.campus_trade.pojo.result.PageResult;
+import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.pojo.vo.UserInfoVO;
 
 public interface UserService {
@@ -19,5 +21,7 @@ public interface UserService {
 
     void updatePassword(Integer id, String currentPassword, String newPassword);
 
-    void deleteUser(Integer id);
+    Result deleteUser(Integer id);
+
+    Result<PageResult<UserInfoVO>> page(UserInfoDTO userInfoDTO);
 }

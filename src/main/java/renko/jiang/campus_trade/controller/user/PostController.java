@@ -45,11 +45,22 @@ public class PostController {
      * @return
      */
     @GetMapping("/all")
-    public Result<List<PostVO>> getPosts(Integer userId,Integer currentUserId) {
+    public Result<List<PostVO>> getPosts(Integer userId) {
         System.out.println("userId = " + userId);
-        List<PostVO> list = postService.getAllPosts(userId, currentUserId);
+        List<PostVO> list = postService.getAllPosts(userId);
         return Result.success(list);
     }
+
+
+    /**
+     * 用户收藏列表
+     */
+    @GetMapping("/current/collections")
+    public Result<List<PostVO>> getCollections(Integer userId) {
+        return postService.getCollections(userId);
+    }
+
+
 
     @PostMapping("/{postId}/like/{userId}")
     Result likePost(@PathVariable Integer postId, @PathVariable Integer userId) {
@@ -78,6 +89,12 @@ public class PostController {
         return Result.success(list);
     }
 
-
-
+    /**
+     * 收藏/取消收藏帖子
+     *
+     */
+    @PostMapping("/{postId}/collect")
+    public Result collectPost(@PathVariable Integer postId) {
+        return postService.collectPost(postId);
+    }
 }

@@ -9,6 +9,8 @@ import renko.jiang.campus_trade.pojo.dto.UserInfoDTO;
 import renko.jiang.campus_trade.pojo.entity.User;
 import renko.jiang.campus_trade.pojo.vo.UserInfoVO;
 
+import java.util.List;
+
 @Mapper
 public interface UserMapper {
     //根据用户名查询用户信息
@@ -39,5 +41,9 @@ public interface UserMapper {
     int updatePassword(Integer id, String currentPassword, String newPassword);
 
     @Delete("delete from user where id = #{id}")
-    void deleteUser(Integer id);
+    int deleteUser(Integer id);
+
+    int countByCondition(User user);
+
+    List<User> pageQueryByCondition(User user, int start, Integer pageSize);
 }

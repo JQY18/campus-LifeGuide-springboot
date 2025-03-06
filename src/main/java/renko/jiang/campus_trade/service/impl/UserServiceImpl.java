@@ -1,13 +1,17 @@
 package renko.jiang.campus_trade.service.impl;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import renko.jiang.campus_trade.mapper.PostMapper;
 import renko.jiang.campus_trade.mapper.UserMapper;
 import renko.jiang.campus_trade.pojo.dto.LoginDTO;
 import renko.jiang.campus_trade.pojo.dto.UserInfoDTO;
 import renko.jiang.campus_trade.pojo.entity.User;
+import renko.jiang.campus_trade.pojo.result.PageResult;
+import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.pojo.vo.UserInfoVO;
 import renko.jiang.campus_trade.service.UserService;
 
@@ -15,12 +19,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private PostMapper postMapper;
 
 
     @Value("${upload.path}")
@@ -39,7 +48,7 @@ public class UserServiceImpl implements UserService {
     public void register(LoginDTO loginDTO) {
         try {
             userMapper.addUser(loginDTO);
-        } catch(Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException("用户名已存在");
         }
     }
@@ -47,12 +56,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserInfoVO getUserInfoById(Integer userId) {
         UserInfoVO userInfo = userMapper.getUserInfoById(userId);
+        //查询用户主页的帖子收藏总数
+        int collections = postMapper.getUserCollectionsCount(userId);
+        userInfo.setCollections(collections);
         return userInfo;
     }
 
     @Override
     public void updateUserInfo(UserInfoDTO userInfoDTO) {
-        if (userInfoDTO.getAvatar() != null){
+        if (userInfoDTO.getAvatar() != null) {
             String imageUrl = handleSingleFileUpload(userInfoDTO.getAvatar());
             userInfoDTO.setImageUrl(imageUrl);
         }
@@ -75,8 +87,47 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(Integer id) {
-        userMapper.deleteUser(id);
+    public Result deleteUser(Integer id) {
+        int update = userMapper.deleteUser(id);
+        if (update == 0) {
+            return Result.error("删除失败");
+        } else {
+            return Result.success();
+        }
+    }
+
+    @Override
+    public Result<PageResult<UserInfoVO>> page(UserInfoDTO userInfoDTO) {
+        PageResult<UserInfoVO> pageResult = new PageResult<>();
+
+        userInfoDTO.setPageNo(userInfoDTO.getPageNo());
+        userInfoDTO.setPageSize(userInfoDTO.getPageSize());
+
+        int start = (userInfoDTO.getPageNo() - 1) * userInfoDTO.getPageSize();
+
+        User user = new User();
+        BeanUtils.copyProperties(userInfoDTO, user);
+
+        int total = userMapper.countByCondition(user);
+        if (total == 0) {
+            return Result.success(pageResult);
+        }
+
+        List<User> users = userMapper.pageQueryByCondition(user, start, userInfoDTO.getPageSize());
+
+        List<UserInfoVO> userInfoVOS = new ArrayList<>();
+        //BeanUtils.copyProperties(users, userInfoVOS);
+
+        for (User user1 : users) {
+            UserInfoVO userInfoVO = new UserInfoVO();
+            BeanUtils.copyProperties(user1, userInfoVO);
+            userInfoVOS.add(userInfoVO);
+        }
+
+        pageResult.setRecords(userInfoVOS);
+
+        pageResult.setTotal(total);
+        return Result.success(pageResult);
     }
 
     //处理图片上传并且返回图片的静态资源映射地址

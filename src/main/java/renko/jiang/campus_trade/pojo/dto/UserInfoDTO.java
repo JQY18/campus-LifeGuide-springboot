@@ -2,14 +2,17 @@ package renko.jiang.campus_trade.pojo.dto;
 
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
+import renko.jiang.campus_trade.pojo.result.PageInfo;
 
 /**
  * @author 86132
  */
 @Data
-public class UserInfoDTO {
+public class UserInfoDTO extends PageInfo {
     private Integer id;
+    private String username;
     private String nickname;
+    private String school;
     private String gender;
     private Integer age;
     private MultipartFile avatar;
