@@ -2,6 +2,7 @@ package renko.jiang.campus_trade.service;
 
 import renko.jiang.campus_trade.pojo.dto.PostDTO;
 import renko.jiang.campus_trade.pojo.dto.PostSearchDTO;
+import renko.jiang.campus_trade.pojo.result.PageResult;
 import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.pojo.vo.PostVO;
 
@@ -24,4 +25,7 @@ public interface PostService {
 
     Result<List<PostVO>> getCollections(Integer userId);
 
+    Result<PageResult<PostVO>> pageQueryPost(PostDTO postDTO);
+
+    Result deletePost(Integer id);
 }

@@ -1,5 +1,8 @@
 package renko.jiang.campus_trade.service.impl;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +18,7 @@ import renko.jiang.campus_trade.pojo.dto.PostSearchDTO;
 import renko.jiang.campus_trade.pojo.entity.Post;
 
 import renko.jiang.campus_trade.pojo.entity.User;
+import renko.jiang.campus_trade.pojo.result.PageResult;
 import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.pojo.vo.PostVO;
 import renko.jiang.campus_trade.service.PostService;
@@ -25,9 +29,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class PostServiceImpl implements PostService {
     @Autowired
@@ -123,15 +129,19 @@ public class PostServiceImpl implements PostService {
     @Override
     public void addPost(PostDTO postDTO) {
         // 转换图片为静态资源映射地址
-        List<String> images = fileUploadToURL.handleMultipleFileUpload(postDTO.getImages());
-
+        List<String> images = Collections.emptyList();
+        if (postDTO.getImages() != null && !postDTO.getImages().isEmpty()){
+            images = fileUploadToURL.handleMultipleFileUpload(postDTO.getImages());
+        }
         Post post = new Post();
         BeanUtils.copyProperties(postDTO,post);
         // 存储帖子信息，并生成主键
         postMapper.addPost(post);
 
         // 存储图片
-        postMapper.addImages(post.getId(),images);
+        if (!images.isEmpty()){
+            postMapper.addImages(post.getId(),images);
+        }
     }
 
     /**
@@ -179,5 +189,31 @@ public class PostServiceImpl implements PostService {
         List<PostVO> postVOS = postMapper.getUserCollections(userId);
         fillPostVOS(currentUserId, postVOS);
         return Result.success(postVOS);
+    }
+
+    @Override
+    public Result<PageResult<PostVO>> pageQueryPost(PostDTO postDTO) {
+        PageResult<PostVO> pageResult = new PageResult<>();
+        //开启分页
+        PageHelper.startPage(postDTO.getPageNo(), postDTO.getPageSize());
+        //查询分页数据
+        List<PostVO> postVOS =  postMapper.pageQueryPost(postDTO);
+        PageInfo<PostVO> pageInfo = new PageInfo<>(postVOS);
+
+        //封装结果集
+        pageResult.setRecords(pageInfo.getList());
+        int total = (int)pageInfo.getTotal();
+        pageResult.setTotal(total);
+        log.info("分页查询结果：{}",pageResult);
+        return Result.success(pageResult);
+    }
+
+    @Override
+    public Result deletePost(Integer id) {
+        int count = postMapper.deletePost(id);
+        if(count == 0){
+            return Result.error("删除失败");
+        }
+        return Result.success();
     }
 }

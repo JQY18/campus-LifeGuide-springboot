@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import renko.jiang.campus_trade.pojo.dto.PostDTO;
 import renko.jiang.campus_trade.pojo.dto.PostSearchDTO;
+import renko.jiang.campus_trade.pojo.result.PageResult;
 import renko.jiang.campus_trade.pojo.result.Result;
 import renko.jiang.campus_trade.pojo.vo.PostVO;
 import renko.jiang.campus_trade.service.PostService;
@@ -28,6 +29,29 @@ public class PostController {
     @Autowired
     private PostService postService;
 
+    /**
+     * 管理端分页查询帖子
+     */
+    @GetMapping("/page")
+    public Result<PageResult<PostVO>> pageQueryPost(PostDTO postDTO){
+        return postService.pageQueryPost(postDTO);
+    }
+//    {
+//            pageNo: 1,        // 当前页码
+//            pageSize: 10,     // 每页数量
+//            username: '',     // 用户名搜索
+//            content: '',      // 内容关键词
+//            startTime: '',    // 开始时间
+//            endTime: ''       // 结束时间
+//    }
+
+    /**
+     * 删除帖子
+     */
+    @DeleteMapping("/{id}")
+    public Result delete(@PathVariable Integer id) {
+        return postService.deletePost(id);
+    }
 
     /**
      * 添加帖子

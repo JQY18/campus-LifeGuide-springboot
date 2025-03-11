@@ -36,17 +36,17 @@
     <!--  搜索帖子  -->
     <select id="getAllPosts" resultMap="PostResultMap" resultType="renko.jiang.campus_trade.pojo.vo.PostVO">
         select id,
-               user_id,
-               category,
-               title,
-               content,
-               create_time
+        user_id,
+        category,
+        title,
+        content,
+        create_time
         from post
         <where>
             <if test="userId != null">
                 and user_id = #{userId}
             </if>
-        </where>    
+        </where>
         order by create_time desc
     </select>
 
@@ -75,14 +75,71 @@
     </select>
     <select id="getUserCollections" resultType="renko.jiang.campus_trade.pojo.vo.PostVO">
         select p.id,
+               p.user_id,
+               p.category,
+               p.title,
+               p.content,
+               p.create_time
+        from post_collect pc
+                 join post p on pc.post_id = p.id
+        where pc.user_id = #{userId}
+        order by p.create_time desc
+    </select>
+
+
+    <!--分页查询的映射关系-->
+    <resultMap id="pageQuery" type="renko.jiang.campus_trade.pojo.vo.PostVO">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="avatar" column="avatar"/>
+        <result property="category" column="category"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="createTime" column="create_time"/>
+        <result property="likes" column="likes"/>
+        <result property="comments" column="comments"/>
+        <collection property="images" javaType="java.util.List" ofType="java.lang.String" column="id"
+                    select="renko.jiang.campus_trade.mapper.PostMapper.getImagesByPostIdInPage">
+        </collection>
+    </resultMap>
+
+    <select id="getImagesByPostIdInPage" resultType="java.lang.String">
+        select url
+        from images
+        where post_id = #{id}
+    </select>
+
+    <!--  管理端分页查询post  -->
+    <select id="pageQueryPost" resultType="renko.jiang.campus_trade.pojo.vo.PostVO" resultMap="pageQuery">
+        select p.id,
         p.user_id,
+        u.username,
+        u.avatar,
         p.category,
         p.title,
         p.content,
-        p.create_time
-        from post_collect pc
-        join post p on pc.post_id = p.id
-        where pc.user_id = #{userId}
+        p.create_time,
+        (select count(1) from post_likes pl where pl.post_id = p.id) as likes,
+        (select count(1) from post_collect pc where pc.post_id = p.id) as comments
+        from post p left join user u on p.user_id = u.id
+        <where>
+            <if test="username != null and username != ''">
+                and u.username like concat('%', #{username}, '%')
+            </if>
+            <if test="category != null and category != 0">
+                and p.category = #{category}
+            </if>
+            <if test="content != null and content != ''">
+                and p.content like concat('%', #{content}, '%')
+            </if>
+            <if test="startTime != null and startTime != ''">
+                and p.create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                and p.create_time &lt;= #{endTime}
+            </if>
+        </where>
         order by p.create_time desc
     </select>
 </mapper>

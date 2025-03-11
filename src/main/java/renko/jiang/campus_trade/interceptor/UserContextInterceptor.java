@@ -1,6 +1,7 @@
 package renko.jiang.campus_trade.interceptor;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

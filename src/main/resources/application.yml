@@ -33,6 +33,15 @@ mybatis:
     map-underscore-to-camel-case: true
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+
+
 upload:
   path: D:\\image
   video: D:\\video
+
+
+pagehelper:
+  helper-dialect: mysql # 设置数据库方言，比如mysql, oracle等
+  reasonable: true       # 启动合理化分页
+  support-methods-arguments: true # 支持通过参数传递分页参数
+  params: count=countSql

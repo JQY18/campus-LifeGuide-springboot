@@ -1,9 +1,7 @@
 package renko.jiang.campus_trade.mapper;
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
+import renko.jiang.campus_trade.pojo.dto.PostDTO;
 import renko.jiang.campus_trade.pojo.dto.PostSearchDTO;
 import renko.jiang.campus_trade.pojo.entity.Post;
 import renko.jiang.campus_trade.pojo.vo.PostVO;
@@ -55,4 +53,9 @@ public interface PostMapper {
 
     @Select("select count(1) from post_collect where user_id = #{userId}")
     int getUserCollectionsCount(Integer userId);
+
+    List<PostVO> pageQueryPost(PostDTO postDTO);
+
+    @Delete("delete from post where id = #{id}")
+    int deletePost(Integer id);
 }
