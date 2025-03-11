@@ -1,6 +1,28 @@
 create database if not exists campus_trade;
 use campus_trade;
 
+
+CREATE TABLE notice
+(
+    id           INT AUTO_INCREMENT PRIMARY KEY, -- 假设ID是自增主键
+    title        VARCHAR(255) NOT NULL,          -- 标题，假设最大长度为255字符
+    content      TEXT         NOT NULL,          -- 内容，使用TEXT类型存储可能较长的内容
+    type         VARCHAR(50)  NOT NULL,          -- 类型，假设最大长度为50字符
+    publisher INT          NOT NULL,          -- 发布人id，关联到发布人的用户表
+    create_time DATETIME     NOT NULL           -- 发布时间，记录日期和时间
+);
+
+
+
+create table post_collect
+(
+    id      int primary key auto_increment,
+    post_id int,
+    user_id int
+);
+
+
+
 drop table if exists admin;
 
 create table admin
