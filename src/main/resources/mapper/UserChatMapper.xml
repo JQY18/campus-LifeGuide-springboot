@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="renko.jiang.campus_life_guide.mapper.UserChatMapper">
+
+    <resultMap type="renko.jiang.campus_life_guide.pojo.entity.UserChat" id="UserChatMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="userId" column="user_id" jdbcType="INTEGER"/>
+        <result property="chatId" column="chat_id" jdbcType="INTEGER"/>
+        <result property="lastRead" column="last_read" jdbcType="INTEGER"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="UserChatMap">
+        select id,
+               user_id,
+               chat_id,
+               last_read,
+               created_time
+        from user_chat
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="UserChatMap">
+        select
+        id,user_id,chat_id,last_read,created_time
+        from user_chat
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="chatId != null">
+                and chat_id = #{chatId}
+            </if>
+            <if test="lastRead != null">
+                and last_read = #{lastRead}
+            </if>
+            <if test="createdTime != null">
+                and created_time = #{createdTime}
+            </if>
+        </where>
+        limit #{pageable.offset}, #{pageable.pageSize}
+    </select>
+
+    <!--统计总行数-->
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from user_chat
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="chatId != null">
+                and chat_id = #{chatId}
+            </if>
+            <if test="lastRead != null">
+                and last_read = #{lastRead}
+            </if>
+            <if test="createdTime != null">
+                and created_time = #{createdTime}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="queryPrivateChatUser" resultType="java.util.Map">
+        select uc.chat_id as chatId, u.id, u.nickname, u.avatar
+        from user_chat uc,
+        user u
+        where u.id = uc.user_id
+        and uc.user_id != #{userId}
+        and chat_id in
+        <foreach collection="privateChatUsers" item="item" open="(" separator="," close=")">
+            #{item.chatId}
+        </foreach>
+    </select>
+
+
+    <!--  查询消息的发送者信息  -->
+    <select id="querySenders" resultType="java.util.Map">
+        select m.id, u.nickname, u.avatar
+        from message m,
+             user u
+        where m.sender_id = u.id
+        and m.id in
+        <foreach collection="messages" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </select>
+
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into user_chat(user_id, chat_id, last_read, created_time)
+        values (#{userId}, #{chatId}, #{lastRead}, #{createdTime})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into user_chat(user_id,chat_id,last_read,created_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.userId},#{entity.chatId},#{entity.lastRead},#{entity.createdTime})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into user_chat(user_id,chat_id,last_read,created_time)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.userId},#{entity.chatId},#{entity.lastRead},#{entity.createdTime})
+        </foreach>
+        on duplicate key update
+        user_id = values(user_id),chat_id = values(chat_id),last_read = values(last_read),created_time =
+        values(created_time)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update user_chat
+        <set>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="chatId != null">
+                chat_id = #{chatId},
+            </if>
+            <if test="lastRead != null">
+                last_read = #{lastRead},
+            </if>
+            <if test="createdTime != null">
+                created_time = #{createdTime},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from user_chat
+        where id = #{id}
+    </delete>
+
+</mapper>
+

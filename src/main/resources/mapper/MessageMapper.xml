@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="renko.jiang.campus_life_guide.mapper.MessageMapper">
+
+    <resultMap type="renko.jiang.campus_life_guide.pojo.entity.Message" id="MessageMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="chatId" column="chat_id" jdbcType="INTEGER"/>
+        <result property="senderId" column="sender_id" jdbcType="INTEGER"/>
+        <result property="content" column="content" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <select id="queryUnreadCount" resultType="java.util.Map" parameterType="java.util.List">
+        select chat_id as chatId,count(1) as messageCount
+        from message
+        <where>
+            <foreach collection="userChats" item="chat" separator="or">
+                (chat_id = #{chat.chatId} and id > #{chat.lastRead})
+            </foreach>
+        </where>
+        group by chat_id
+    </select>
+
+
+    <select id="queryLastMessage" resultType="renko.jiang.campus_life_guide.pojo.entity.Message"
+            parameterType="java.util.List">
+        SELECT m.*
+        FROM message m
+        INNER JOIN (
+        SELECT chat_id, MAX(id) AS max_id
+        FROM message
+        WHERE chat_id IN
+        <foreach collection="chatIds" item="chatId" open="(" separator="," close=")">
+            #{chatId}
+        </foreach>
+        GROUP BY chat_id
+        ) latest ON m.chat_id = latest.chat_id AND m.id = latest.max_id
+    </select>
+
+</mapper>
+

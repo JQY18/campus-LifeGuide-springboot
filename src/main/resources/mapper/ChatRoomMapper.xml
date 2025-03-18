@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="renko.jiang.campus_life_guide.mapper.ChatRoomMapper">
+
+    <resultMap type="renko.jiang.campus_life_guide.pojo.entity.ChatRoom" id="ChatRoomMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+        <result property="type" column="type" jdbcType="VARCHAR"/>
+        <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <select id="queryByIds" resultType="renko.jiang.campus_life_guide.pojo.entity.ChatRoom"
+            parameterType="java.util.List">
+        select id,
+               name,
+               avatar,
+               type,
+               created_time
+        from chat_room
+        where id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+</mapper>
+
