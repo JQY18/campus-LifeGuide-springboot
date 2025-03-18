@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="renko.jiang.campus_trade.mapper.UserMapper">
+<mapper namespace="renko.jiang.campus_life_guide.mapper.UserMapper">
     <!--    修改用户信息   -->
     <update id="updateUser">
         update user
@@ -30,7 +30,7 @@
 
     <!--  分页查询时，count符合条件的总数  -->
     <select id="countByCondition" resultType="java.lang.Integer"
-            parameterType="renko.jiang.campus_trade.pojo.entity.User">
+            parameterType="renko.jiang.campus_life_guide.pojo.entity.User">
         select count(1) from user
         <where>
             <if test="username != null and username.trim() != ''">
@@ -52,7 +52,7 @@
     </select>
 
     <!--  分页查询  -->
-    <select id="pageQueryByCondition" resultType="renko.jiang.campus_trade.pojo.entity.User">
+    <select id="pageQueryByCondition" resultType="renko.jiang.campus_life_guide.pojo.entity.User">
         select * from user
         <where>
             <if test="user.username != null and user.username != ''">username like concat('%', #{user.username}, '%')
@@ -67,6 +67,16 @@
         </where>
         order by create_time desc
         limit #{start}, #{pageSize}
+    </select>
+
+    <!--  查询聊天室的成员信息  -->
+    <select id="queryUserInfoByIds" resultType="renko.jiang.campus_life_guide.pojo.entity.User">
+        select *
+        from user
+        where id in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
 
 </mapper>

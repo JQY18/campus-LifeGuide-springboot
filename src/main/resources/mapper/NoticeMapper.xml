@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="renko.jiang.campus_trade.mapper.NoticeMapper">
+<mapper namespace="renko.jiang.campus_life_guide.mapper.NoticeMapper">
 
     <!--  更新公告  -->
-    <update id="updateNotice" parameterType="renko.jiang.campus_trade.controller.admin.pojo.entity.Notice">
+    <update id="updateNotice" parameterType="renko.jiang.campus_life_guide.controller.admin.pojo.entity.Notice">
         update notice
         <set>
             <if test="title != null">title = #{title},</if>
@@ -16,7 +16,7 @@
 
     <!--  统计符合条件的total值  -->
     <select id="pageQueryNoticeCount" resultType="java.lang.Integer"
-            parameterType="renko.jiang.campus_trade.controller.admin.pojo.dto.NoticeDTO">
+            parameterType="renko.jiang.campus_life_guide.controller.admin.pojo.dto.NoticeDTO">
         select count(1)
         from notice
         <where>
@@ -45,7 +45,7 @@
     </select>
 
     <!--  分页查询  -->
-    <select id="pageQueryNotice" resultType="renko.jiang.campus_trade.controller.admin.pojo.entity.Notice">
+    <select id="pageQueryNotice" resultType="renko.jiang.campus_life_guide.controller.admin.pojo.entity.Notice">
         select id,
         title,
         content,

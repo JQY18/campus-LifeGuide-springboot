@@ -10,7 +10,7 @@
     </parent>
 
     <groupId>renko.jiang</groupId>
-    <artifactId>campus_trade</artifactId>
+    <artifactId>campus_life_guide</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>campus-trade</name>
     <description>campus-trade</description>
@@ -100,6 +100,11 @@
             <groupId>com.github.pagehelper</groupId>
             <artifactId>pagehelper-spring-boot-starter</artifactId>
             <version>1.4.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
 
     </dependencies>
