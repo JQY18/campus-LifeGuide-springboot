@@ -59,6 +59,8 @@ public class PostController {
      * 获取所有帖子
      * @return
      */
+
+    //待改进
     @GetMapping("/all")
     public Result<List<PostVO>> getPosts(Integer userId) {
         System.out.println("userId = " + userId);
@@ -70,6 +72,8 @@ public class PostController {
     /**
      * 用户收藏列表
      */
+
+    //待改进
     @GetMapping("/current/collections")
     public Result<List<PostVO>> getCollections(Integer userId) {
         return postService.getCollections(userId);
@@ -77,6 +81,7 @@ public class PostController {
 
 
 
+    //待改进
     @PostMapping("/{postId}/like/{userId}")
     Result likePost(@PathVariable Integer postId, @PathVariable Integer userId) {
         return postService.likePost(postId, userId);

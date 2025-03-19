@@ -28,6 +28,8 @@ public class CommentController {
      * @param userId
      * @return
      */
+
+    //userId为当前用户，待改进
     @GetMapping("/{postId}")
     public Result<List<CommentVO>> getComments(@PathVariable Integer postId, Integer userId) {
         List<CommentVO> comments = commentService.getCommentsByPostId(postId, userId);
@@ -53,6 +55,8 @@ public class CommentController {
      * @param requestBody
      * @return
      */
+
+    //likerId为当前用户，待改进
     @PostMapping("/like")
     public Result likeComment(@RequestBody Map<String, Integer> requestBody) {
         Integer commentId = requestBody.get("commentId");

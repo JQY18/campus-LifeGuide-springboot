@@ -11,9 +11,11 @@ import renko.jiang.campus_life_guide.pojo.entity.User;
 import renko.jiang.campus_life_guide.pojo.result.PageResult;
 import renko.jiang.campus_life_guide.pojo.result.Result;
 import renko.jiang.campus_life_guide.pojo.vo.UserInfoVO;
-
+import renko.jiang.campus_life_guide.properties.JwtProperties;
 import renko.jiang.campus_life_guide.service.UserService;
+import renko.jiang.campus_life_guide.utils.JwtUtil;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @CrossOrigin(origins = "*")
@@ -23,6 +25,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private JwtProperties jwtProperties;
+
     /**
      * 登录
      *
@@ -30,7 +35,7 @@ public class UserController {
      * @return
      */
     @PostMapping(value = "/login")
-    public Result login(@RequestBody LoginDTO loginDTO, HttpServletRequest request) {
+    public Result login(@RequestBody LoginDTO loginDTO) {
 
         User user = userService.login(loginDTO);
 
@@ -38,7 +43,19 @@ public class UserController {
             return Result.error("账号或密码错误!");
         }
 
-        return Result.success(user.getId());
+
+        //登录成功，生成token，并且返回给前端
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("userId", user.getId());
+        String token = JwtUtil.createJWT(jwtProperties.getSecretKey(),
+                jwtProperties.getExpiration(),
+                claims);
+
+        Map<String, Object> mapResult = new HashMap<>();
+        mapResult.put("token", token);
+        mapResult.put("userId", user.getId());
+
+        return Result.success(mapResult);
     }
 
     /**
@@ -74,6 +91,7 @@ public class UserController {
      * @param
      * @return
      */
+
     @GetMapping("/info")
     public Result<UserInfoVO> getUserInfoById(Integer userId) {
         UserInfoVO userInfo = userService.getUserInfoById(userId);

@@ -52,7 +52,7 @@ public class PostServiceImpl implements PostService {
      * 获取所有帖子
      * @return
      */
-    @Transactional(rollbackFor = Exception.class)
+
     @Override
     public List<PostVO> getAllPosts(Integer userId) {
         List<PostVO> postVOS = postMapper.getAllPosts(userId);

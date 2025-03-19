@@ -39,6 +39,9 @@ upload:
   path: D:\\image
   video: D:\\video
 
+jwt:
+  secret-key: jiangqiyue
+  expiration: 604800000 # 7天
 
 pagehelper:
   helper-dialect: mysql # 设置数据库方言，比如mysql, oracle等
