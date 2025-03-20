@@ -25,7 +25,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     private UserContextInterceptor userContextInterceptor;
 
 
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -42,17 +41,29 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
      */
 
 
+    private final String[] EXCLUDE_PATH = {
+            "/doc.html",
+            "/swagger-resources/**",
+            "/v3/api-docs/**",
+            "webjars/**"
+    };
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userContextInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/admin/**")
                 .excludePathPatterns("/user/login")
-                .excludePathPatterns("/user/register");
+                .excludePathPatterns("/user/register")
+                .excludePathPatterns(EXCLUDE_PATH);
 
         registry.addInterceptor(pvCountInterceptor)
-                .addPathPatterns("/**")
-                .excludePathPatterns("/admin/**");
+                .addPathPatterns("/locations");
+
+//        registry.addInterceptor(pvCountInterceptor)
+//                .addPathPatterns("/**")
+//                .excludePathPatterns("/admin/**")
+//                .excludePathPatterns(EXCLUDE_PATH);
     }
 
     @Value("${upload.path}")
@@ -62,6 +73,16 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/image/**")
                 .addResourceLocations("file:" + uploadPath + "/");
+
+        // 添加静态资源映射规则
+        registry.addResourceHandler("/static/**")
+                .addResourceLocations("classpath:/static/");
+        //配置 knife4j 的静态资源请求映射地址
+        registry.addResourceHandler("/doc.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+
     }
 
 
@@ -72,7 +93,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
         //为消息转换器设置一个对象转换器,对象转换器可以将Java对象序列化为json格式的数据
         converter.setObjectMapper(new JacksonObjectMapper());
         //将消息转换器加入到容器中
-        converters.add(0, converter);
+        converters.add(converters.size() - 1, converter);
     }
 
 }

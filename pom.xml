@@ -94,6 +94,13 @@
             <version>5.8.25</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+            <version>4.5.0</version>
+        </dependency>
+
+
 
         <!--分页插件依赖-->
         <dependency>

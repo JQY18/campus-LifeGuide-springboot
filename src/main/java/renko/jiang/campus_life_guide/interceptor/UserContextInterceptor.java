@@ -30,6 +30,8 @@ public class UserContextInterceptor implements HandlerInterceptor {
 //            return true;
 //        }
 
+//        log.info("renko.jiang.campus_trade.interceptor.UserContextInterceptor:用户登录-拦截器:{}", request.getRequestURI());
+
         if (HttpMethod.OPTIONS.toString().equalsIgnoreCase(request.getMethod())) {
             return true;
         }

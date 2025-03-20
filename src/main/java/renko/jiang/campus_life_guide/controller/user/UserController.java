@@ -1,6 +1,11 @@
 package renko.jiang.campus_life_guide.controller.user;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +23,7 @@ import renko.jiang.campus_life_guide.utils.JwtUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "用户模块")
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/user")
@@ -34,6 +40,9 @@ public class UserController {
      * @param loginDTO
      * @return
      */
+
+    @Operation(summary = "登录",description = "根据用户名和密码登录，成功后返回jwt令牌")
+    @Parameter(name = "loginDTO", description = "用户名密码", required = true)
     @PostMapping(value = "/login")
     public Result login(@RequestBody LoginDTO loginDTO) {
 
@@ -116,6 +125,12 @@ public class UserController {
      * @param id     用户id
      * @param avatar
      */
+
+    @Operation(summary = "修改用户头像",description = "修改用户头像")
+    @Parameters({
+            @Parameter(name = "id", description = "用户id", required = true),
+            @Parameter(name = "avatar", description = "用户头像", required = true)
+    })
     @PostMapping("/avatar")
     public Result updateAvatar(Integer id, MultipartFile avatar) {
         userService.updateAvatar(id, avatar);

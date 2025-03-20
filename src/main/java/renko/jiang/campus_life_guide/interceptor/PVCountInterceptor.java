@@ -24,9 +24,12 @@ public class PVCountInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-//        if("upgrade".equalsIgnoreCase(request.getHeader("Connection"))){
+        //        if("upgrade".equalsIgnoreCase(request.getHeader("Connection"))){
 //            return true;
 //        }
+
+//        log.info("renko.jiang.campus_trade.interceptor.UserContextInterceptor:用户登录-拦截器:{}", request.getRequestURI());
+
 
         if (HttpMethod.OPTIONS.toString().equalsIgnoreCase(request.getMethod())) {
             return true;
@@ -39,11 +42,14 @@ public class PVCountInterceptor implements HandlerInterceptor {
 
         // 获取请求的URL
         String url = request.getRequestURI();
+        if(!"/locations".equals(url)){
+            return true;
+        }
         LocalDate date = LocalDate.now();
-        Long count =statisticsMapper.getCount(date);
-        if (count == null){
+        Long count = statisticsMapper.getCount(date);
+        if (count == null) {
             statisticsMapper.addVisit(date);
-        }else{
+        } else {
             statisticsMapper.update(date);
         }
         return true;
