@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import renko.jiang.campus_life_guide.context.UserContextHolder;
@@ -13,6 +12,7 @@ import renko.jiang.campus_life_guide.mapper.ChatRoomMapper;
 import renko.jiang.campus_life_guide.mapper.MessageMapper;
 import renko.jiang.campus_life_guide.mapper.UserChatMapper;
 import renko.jiang.campus_life_guide.mapper.UserMapper;
+import renko.jiang.campus_life_guide.pojo.dto.GroupChatDTO;
 import renko.jiang.campus_life_guide.pojo.dto.MessageDTO;
 import renko.jiang.campus_life_guide.pojo.entity.ChatRoom;
 import renko.jiang.campus_life_guide.pojo.entity.Message;
@@ -20,8 +20,8 @@ import renko.jiang.campus_life_guide.pojo.entity.User;
 import renko.jiang.campus_life_guide.pojo.entity.UserChat;
 import renko.jiang.campus_life_guide.pojo.result.Result;
 import renko.jiang.campus_life_guide.pojo.vo.ChatVO;
+import renko.jiang.campus_life_guide.pojo.vo.GroupMember;
 import renko.jiang.campus_life_guide.pojo.vo.MessageVO;
-import renko.jiang.campus_life_guide.pojo.vo.UserInfoVO;
 import renko.jiang.campus_life_guide.service.ChatRoomService;
 
 import java.sql.SQLException;
@@ -72,7 +72,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         List<Message> messages = messageMapper.queryMessagesByChatId(chatId);
 
         // 如果聊天室中没有消息，直接返回
-        if (CollectionUtil.isEmpty(messages)){
+        if (CollectionUtil.isEmpty(messages)) {
             return Result.success(messageVOS);
         }
 
@@ -89,9 +89,9 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             Long messageId = message.getId();
 
             Map<String, Object> map = sendersMap.get(messageId);
-            if(map != null){
-                messageVO.setSenderName((String) map.getOrDefault("nickname",""));
-                messageVO.setSenderAvatar((String) map.getOrDefault("avatar",""));
+            if (map != null) {
+                messageVO.setSenderName((String) map.getOrDefault("nickname", ""));
+                messageVO.setSenderAvatar((String) map.getOrDefault("avatar", ""));
             }
             messageVOS.add(messageVO);
         }
@@ -102,6 +102,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     /**
      * 查询当前用户的所有聊天室
+     *
      * @return
      */
     @Override
@@ -143,7 +144,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .toList();
 
         Map<Long, Map<String, Object>> privateChatUsersMap = null;
-        if(CollectionUtil.isNotEmpty(privateChatUsers)){
+        if (CollectionUtil.isNotEmpty(privateChatUsers)) {
             List<Map<String, Object>> privateChatUsersResult = userChatMapper.queryPrivateChatUser(privateChatUsers, userId);
             privateChatUsersMap = privateChatUsersResult.stream().collect(Collectors.toMap(
                     row -> (Long) row.get("chatId"),
@@ -169,7 +170,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             chatVO.setUnreadCount(unreadCountMap.getOrDefault(chatRoom.getId(), 0L).intValue());
             chatVO.setLastMessage(lastMessageMap.get(chatRoom.getId()));
             if ("private".equals(chatRoom.getType())) {
-                if (CollectionUtil.isNotEmpty(privateChatUsersMap)){
+                if (CollectionUtil.isNotEmpty(privateChatUsersMap)) {
                     Map<String, Object> privateChatUser = privateChatUsersMap.get(chatRoom.getId());
                     chatVO.setUserId((Integer) privateChatUser.get("id"));
                     chatVO.setName((String) privateChatUser.get("nickname"));
@@ -210,26 +211,41 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
     /**
      * 查询聊天室成员
+     *
      * @param chatId
      * @return
      */
     @Override
-    public Result<List<UserInfoVO>> queryChatRoomMembers(Long chatId) {
+    public Result<List<GroupMember>> queryChatRoomMembers(Long chatId) {
         if (chatId == null) {
             return Result.error("请选择聊天室");
         }
 
-        //查询聊天室成员id
-        List<Integer> userIds = userChatMapper.queryChatRoomMembers(chatId);
+        //查询聊天室成员
+        List<UserChat> userChats = userChatMapper.queryChatRoomMembers(chatId);
+        Map<Integer, String> userRoleMap = userChats.stream().collect(Collectors.toMap(
+                UserChat::getUserId,
+                UserChat::getRole,
+                (oldValue, newValue) -> oldValue
+        ));
+
+        //userIds
+        List<Integer> userIds = userChats.stream().map(UserChat::getUserId).toList();
+        if (CollectionUtil.isEmpty(userIds)){
+            return Result.error("似乎没有群成员");
+        }
+
         //查询用户信息
         List<User> users = userMapper.queryUserInfoByIds(userIds);
         //将用户信息转换为UserInfoVO
-        List<UserInfoVO> userInfoVOS = users.stream().map(user -> {
-            UserInfoVO userInfoVO = new UserInfoVO();
-            BeanUtils.copyProperties(user, userInfoVO);
-            return userInfoVO;
+        List<GroupMember> gGroupMembers = users.stream().map(user -> {
+            GroupMember gGroupMember = BeanUtil.copyProperties(user, GroupMember.class);
+            //设置成员的角色
+            gGroupMember.setRole(userRoleMap.get(user.getId()));
+            return gGroupMember;
         }).toList();
-        return Result.success(userInfoVOS);
+
+        return Result.success(gGroupMembers);
     }
 
     @Override
@@ -237,7 +253,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         if (chatId == null || lastMessageId == null) {
             return Result.error("参数错误");
         }
-        Integer userId  = UserContextHolder.getUserId();
+        Integer userId = UserContextHolder.getUserId();
         if (userChatMapper.updateLastRead(lastMessageId, userId, chatId) > 0) {
             return Result.success();
         }
@@ -259,6 +275,83 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         if (update == null || update == 0) {
             log.error("renko.jiang.campus_life_guide.service.impl.ChatRoomServiceImpl.saveMessage:更新最后已读消息失败");
         }
+    }
+
+
+    /**
+     * 创建群聊
+     *
+     * @param groupChatDTO 群聊信息
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Result<Long> addGroupChatRoom(GroupChatDTO groupChatDTO) {
+        //群主（当前登录用户）
+        Integer ownerId = UserContextHolder.getUserId();
+
+        //1.创建一个group聊天室，并返回chatId
+        ChatRoom chatRoom = new ChatRoom();
+        chatRoom.setType("group");
+        chatRoom.setName(groupChatDTO.getName());
+        long insert = chatRoomMapper.addChatRoom(chatRoom);
+        if (insert == 0) {
+            throw new RuntimeException("创建群聊失败");
+        }
+        List<Integer> userIds = groupChatDTO.getUserIds();
+        //2.将成员id添加到user_chat表values (...user_id,chat_id...)
+        long insert1 = userChatMapper.addGroupChatRoom(ownerId, chatRoom.getId(), userIds);
+        if (insert1 != userIds.size() + 1) {
+            throw new RuntimeException("添加群聊失败");
+        }
+
+        //3.返回群聊id
+
+        return Result.success(chatRoom.getId());
+    }
+
+
+    /**
+     * 删除群聊
+     *
+     * @param chatId 群聊id
+     * @return
+     */
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Result deleteByChatId(Long chatId) {
+        //只有群主才能删除群聊
+        Integer userId = UserContextHolder.getUserId();
+        //查询群聊的群主id
+        Integer ownerId = userChatMapper.queryChatRoomOwner(chatId);
+        if (ownerId == null || !ownerId.equals(userId)) {
+            return Result.error("只有群主才能删除群聊");
+        }
+        //删除群聊 聊天室
+        chatRoomMapper.deleteChatRoomByChatId(chatId);
+        //删除群聊成员 关系
+        userChatMapper.deleteByChatId(chatId);
+        //删除群聊消息
+        messageMapper.deleteByChatId(chatId);
+
+        return Result.success("群聊解散成功");
+    }
+
+    @Override
+    public Result exitGroupChat(Long chatId) {
+        //获取当前用户id
+        Integer userId = UserContextHolder.getUserId();
+        //从user_chat表中删除该用户和群聊的关系
+        if (userChatMapper.exitGroupChat(userId, chatId) > 0) {
+            return Result.success();
+        }
+        return Result.error("退出群聊失败");
+    }
+
+    @Override
+    public boolean existChatRoom(Long chatId) {
+        return chatRoomMapper.existChatRoom(chatId) > 0;
     }
 
 }

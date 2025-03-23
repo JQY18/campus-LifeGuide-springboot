@@ -4,8 +4,8 @@ package renko.jiang.campus_life_guide.controller.user;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -41,8 +41,8 @@ public class UserController {
      * @return
      */
 
-    @Operation(summary = "登录",description = "根据用户名和密码登录，成功后返回jwt令牌")
-    @Parameter(name = "loginDTO", description = "用户名密码", required = true)
+//    @Parameter(name = "loginDTO", description = "用户名密码", required = true)
+    @Operation(summary = "登录", description = "根据用户名和密码登录，成功后返回jwt令牌")
     @PostMapping(value = "/login")
     public Result login(@RequestBody LoginDTO loginDTO) {
 
@@ -126,7 +126,7 @@ public class UserController {
      * @param avatar
      */
 
-    @Operation(summary = "修改用户头像",description = "修改用户头像")
+    @Operation(summary = "修改用户头像", description = "修改用户头像")
     @Parameters({
             @Parameter(name = "id", description = "用户id", required = true),
             @Parameter(name = "avatar", description = "用户头像", required = true)
@@ -162,4 +162,41 @@ public class UserController {
     public Result deleteUser(@PathVariable Integer id) {
         return userService.deleteUser(id);
     }
+
+    /**
+     * 加好友
+     *
+     * @param friendId
+     */
+
+    @Operation(summary = "添加好友")
+    @Parameter(description = "待加好友的用户id",required = true,in = ParameterIn.PATH)
+    @PostMapping("/addFriend/{friendId}")
+    public Result addFriend(@PathVariable("friendId") Integer friendId) {
+        return userService.addFriend(friendId);
+    }
+
+    /**
+     * 删除好友
+     * @param friendId
+     */
+
+    @Operation(summary = "删除好友")
+    @Parameter(description = "待删除好友的用户id",required = true,in = ParameterIn.PATH)
+    @DeleteMapping("/deleteFriend/{friendId}")
+    public Result deleteFriend(@PathVariable("friendId") Integer friendId){
+        return userService.deleteFriend(friendId);
+    }
+
+    /**
+     * 检查是不是好友
+     * @param friendId
+     */
+    @Operation(summary = "检查是不是好友")
+    @Parameter(description = "待检查好友的用户id",required = true,in = ParameterIn.PATH)
+    @GetMapping("/checkFriend/{friendId}")
+    public Result<Boolean> checkFriend(@PathVariable("friendId") Integer friendId){
+        return userService.checkFriend(friendId);
+    }
+
 }

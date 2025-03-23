@@ -2,9 +2,8 @@ package renko.jiang.campus_life_guide.pojo.entity;
 
 import lombok.Data;
 
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * (UserChat)实体类
@@ -24,7 +23,10 @@ public class UserChat implements Serializable {
     private Long chatId;
 
     private String type;
-/**
+
+    // 用户角色 (群主，管理员，成员) (owner,admin,member)
+    private String role;
+    /**
      * 最后已读的message id
      */
     private Long lastRead;

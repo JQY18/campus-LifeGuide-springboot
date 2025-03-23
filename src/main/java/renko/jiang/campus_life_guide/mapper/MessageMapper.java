@@ -1,10 +1,7 @@
 package renko.jiang.campus_life_guide.mapper;
 
 
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import renko.jiang.campus_life_guide.pojo.entity.Message;
 import renko.jiang.campus_life_guide.pojo.entity.UserChat;
 
@@ -29,5 +26,8 @@ public interface MessageMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id")
     @Insert("insert into message (chat_id, sender_id, content) values (#{chatId}, #{senderId}, #{content})")
     Integer insert(Message message);
+
+    @Delete("delete from message where chat_id = #{chatId}")
+    long deleteByChatId(Long chatId);
 }
 

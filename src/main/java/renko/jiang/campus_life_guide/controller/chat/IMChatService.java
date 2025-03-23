@@ -28,7 +28,7 @@ public class IMChatService {
         // 发送消息给特定群聊频道
         simpMessagingTemplate.convertAndSend("/topic/group/" + chatMessage.getSendTo(), chatMessage);
         //持久化
-        chatRoomService.saveMessage(chatMessage);
+        saveMessage(chatMessage);
     }
 
     public void privateMessage(ChatMessage chatMessage) {
@@ -38,6 +38,14 @@ public class IMChatService {
         // "/user/" + chatMessage.getSendTo() + "/private"
         simpMessagingTemplate.convertAndSendToUser(chatMessage.getSendTo().toString(), "/private", chatMessage);
         //持久化
+        saveMessage(chatMessage);
+    }
+
+    private void saveMessage(ChatMessage chatMessage) {
+        //先检查该聊天是否被删除
+        if(!chatRoomService.existChatRoom(chatMessage.getChatId())){
+            return;
+        }
         chatRoomService.saveMessage(chatMessage);
     }
 }

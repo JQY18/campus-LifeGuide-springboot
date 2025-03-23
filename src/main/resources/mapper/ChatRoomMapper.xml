@@ -10,14 +10,20 @@
         <result property="createdTime" column="created_time" jdbcType="TIMESTAMP"/>
     </resultMap>
 
+    <!--  添加聊天  -->
+    <insert id="addChatRoom" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO chat_room (name, avatar, type)
+        VALUES (#{name}, #{avatar}, #{type})
+    </insert>
+
 
     <select id="queryByIds" resultType="renko.jiang.campus_life_guide.pojo.entity.ChatRoom"
             parameterType="java.util.List">
         select id,
-               name,
-               avatar,
-               type,
-               created_time
+        name,
+        avatar,
+        type,
+        created_time
         from chat_room
         where id in
         <foreach collection="list" item="item" open="(" separator="," close=")">

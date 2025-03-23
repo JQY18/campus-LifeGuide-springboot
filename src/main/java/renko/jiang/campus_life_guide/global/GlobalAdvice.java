@@ -1,10 +1,12 @@
 package renko.jiang.campus_life_guide.global;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import renko.jiang.campus_life_guide.pojo.result.Result;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalAdvice {
 
@@ -14,12 +16,12 @@ public class GlobalAdvice {
     // 你可以考虑忽略这类异常或者适当地记录它们而不中断服务。
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception e) {
-        if(e instanceof ClientAbortException){
+        if (e instanceof ClientAbortException) {
             e.printStackTrace();
             return Result.error("客户端异常");
         }
+        log.error("全局异常捕获：{}", e.getMessage());
         e.printStackTrace();
         return Result.error(e.getMessage());
     }
-
 }

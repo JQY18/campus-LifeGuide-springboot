@@ -70,6 +70,7 @@ public class UserContextInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        //请求完成之后将ThreadLocal中的用户上下文及时清除，避免OOM
         UserContextHolder.remove();
     }
 }

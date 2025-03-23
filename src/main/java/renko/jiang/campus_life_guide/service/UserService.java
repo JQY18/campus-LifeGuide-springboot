@@ -24,4 +24,10 @@ public interface UserService {
     Result deleteUser(Integer id);
 
     Result<PageResult<UserInfoVO>> page(UserInfoDTO userInfoDTO);
+
+    Result addFriend(Integer friendId);
+
+    Result deleteFriend(Integer friendId);
+
+    Result<Boolean> checkFriend(Integer friendId);
 }
