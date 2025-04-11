@@ -44,5 +44,8 @@ public interface UserChatMapper {
 
     @Delete("delete from user_chat where user_id = #{userId} and chat_id = #{chatId}")
     int exitGroupChat(Integer userId, Long chatId);
+
+    @Select("select count(1) from user_chat where user_id = #{userId} and chat_id = #{chatId}")
+    long isGroupMember(Integer userId, Long chatId);
 }
 

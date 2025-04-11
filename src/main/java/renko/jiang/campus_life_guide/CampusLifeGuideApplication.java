@@ -2,6 +2,7 @@ package renko.jiang.campus_life_guide;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @author 86132

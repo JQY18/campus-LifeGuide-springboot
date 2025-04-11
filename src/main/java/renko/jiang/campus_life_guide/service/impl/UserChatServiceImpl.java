@@ -17,4 +17,10 @@ public class UserChatServiceImpl implements UserChatService {
     @Resource
     private UserChatMapper userChatMapper;
 
+    @Override
+    public boolean isGroupMember(Integer userId, Long chatId) {
+        long count = userChatMapper.isGroupMember(userId, chatId);
+        return count > 0;
+    }
+
 }

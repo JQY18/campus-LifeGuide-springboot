@@ -4,6 +4,7 @@ package renko.jiang.campus_life_guide.controller.chat;
 import cn.hutool.core.util.StrUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import renko.jiang.campus_life_guide.pojo.dto.GroupChatDTO;
 import renko.jiang.campus_life_guide.pojo.dto.MessageDTO;
@@ -13,6 +14,7 @@ import renko.jiang.campus_life_guide.pojo.vo.ChatVO;
 import renko.jiang.campus_life_guide.pojo.vo.GroupMember;
 import renko.jiang.campus_life_guide.pojo.vo.MessageVO;
 import renko.jiang.campus_life_guide.service.ChatRoomService;
+import renko.jiang.campus_life_guide.service.UserOnlineStatusService;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,9 @@ public class ChatController {
      */
     @Resource
     private ChatRoomService chatRoomService;
+
+    @Autowired
+    private UserOnlineStatusService userOnlineStatusService;
 
     /**
      * 获取当前用户的所有聊天
@@ -110,8 +115,7 @@ public class ChatController {
     }
 
     /**
-     *退出群聊
-     *
+     * 退出群聊
      */
     @Operation(summary = "退出群聊")
     @DeleteMapping("/group/exit/{chatId}")
@@ -119,5 +123,13 @@ public class ChatController {
         return chatRoomService.exitGroupChat(chatId);
     }
 
+
+    /**
+     * 用户在线状态
+     */
+    @GetMapping("/online/{userId}")
+    public Result<Boolean> isOnline(@PathVariable Integer userId) {
+        return Result.success(userOnlineStatusService.isOnline(userId));
+    }
 }
 

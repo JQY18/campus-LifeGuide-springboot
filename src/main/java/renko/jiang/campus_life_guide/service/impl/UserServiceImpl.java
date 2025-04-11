@@ -17,6 +17,7 @@ import renko.jiang.campus_life_guide.pojo.result.PageResult;
 import renko.jiang.campus_life_guide.pojo.result.Result;
 import renko.jiang.campus_life_guide.pojo.vo.UserInfoVO;
 import renko.jiang.campus_life_guide.service.UserService;
+import renko.jiang.campus_life_guide.utils.RedisUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * @author 86132
+ */
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
@@ -44,6 +48,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private MessageMapper messageMapper;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     @Value("${upload.path}")
     private String path;
 
@@ -57,12 +64,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void register(LoginDTO loginDTO) {
+    public Result register(LoginDTO loginDTO) {
+        log.info("用户注册：{}", loginDTO);
+
+        // 邮箱
+        String email = loginDTO.getEmail();
+        // 验证码
+        String code = loginDTO.getCode();
+        // 验证码校验
+        String key = redisUtil.buildKey(RedisUtil.VERIFICATION_CODE_KEY, email);
+        Object verificationCode = redisUtil.get(key);
+
+        if (verificationCode == null || !verificationCode.equals(code)) {
+            return Result.error("验证码错误");
+        }
+
         try {
             userMapper.addUser(loginDTO);
         } catch (Exception e) {
-            throw new RuntimeException("用户名已存在");
+            e.printStackTrace();
+            return Result.error("用户名已存在");
         }
+
+        redisUtil.delete(key);
+        return Result.success();
     }
 
     @Override
@@ -236,6 +261,18 @@ public class UserServiceImpl implements UserService {
             return Result.success(true);
         }
         return Result.success(false);
+    }
+
+
+    /**
+     * 检查邮箱是否已经注册过
+     *
+     * @param email
+     * @return
+     */
+    @Override
+    public boolean existUserByEmail(String email) {
+        return userMapper.existUserByEmail(email) > 0;
     }
 
     /**

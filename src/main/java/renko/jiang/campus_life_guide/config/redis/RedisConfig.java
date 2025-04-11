@@ -1,4 +1,4 @@
-package renko.jiang.campus_life_guide.config;
+package renko.jiang.campus_life_guide.config.redis;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

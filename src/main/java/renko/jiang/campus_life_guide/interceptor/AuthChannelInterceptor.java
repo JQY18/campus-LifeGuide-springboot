@@ -1,7 +1,10 @@
 package renko.jiang.campus_life_guide.interceptor;
 
+import cn.hutool.core.util.BooleanUtil;
+import cn.hutool.json.JSONUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;
@@ -13,9 +16,12 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
+import renko.jiang.campus_life_guide.controller.chat.ChatMessage;
 import renko.jiang.campus_life_guide.properties.JwtProperties;
+import renko.jiang.campus_life_guide.service.UserChatService;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 
 /**
@@ -30,11 +36,15 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
     @Resource
     private JwtProperties jwtProperties;
 
+    @Autowired
+    private UserChatService userChatService;
+
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
 
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
-
+        // 过滤时保留原始STOMP头信息
+        accessor.setLeaveMutable(true);
 
         //if (true) {
 //            //            返回错误信息并终止连接
@@ -80,15 +90,61 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
 //                log.error("JWT 解析失败: {}", e.getMessage());
 //                return buildErrorMessage(accessor, "无效的访问令牌");
 //            }
+        } else if (StompCommand.SUBSCRIBE.equals(accessor.getCommand())) {
+            log.info("STOMP 命令: {}", accessor.getCommand());
+            // 检查用户是否有资格订阅该消息通道，防止用户恶意订阅消息
+            Integer userId = (Integer) accessor.getSessionAttributes().get("userId");
+            String destination = accessor.getDestination();
+            // 私聊订阅自己
+            // /user/12/private
+            if (destination == null) {
+                return buildErrorMessage(accessor, "无权订阅该消息通道");
+            }
+
+            if (destination.startsWith("/user/" + userId + "/private")) {
+                log.info("STOMP 命令: {}", destination);
+                // 放行
+                String privateChatUserId = destination.split("/")[2];
+
+                if (!privateChatUserId.equals(userId.toString())) {
+                    log.error("STOMP 连接认证失败：用户无权订阅该消息通道userId:{} -> {}", userId, privateChatUserId);
+                    return buildErrorMessage(accessor, "无权订阅该消息通道");
+                }
+            }
+
+            // /topic/group/2
+            if (destination.startsWith("/topic/group/")) {
+                String groupId = destination.split("/")[3];
+                // 检查用户是否有资格订阅该消息通道，防止用户恶意订阅消息
+                // 判断用户当前订阅的groupId是否是当前用户加入的群聊
+                Long chatId = null;
+                try {
+                    chatId = Long.parseLong(groupId);
+                } catch (NumberFormatException e) {
+                    return buildErrorMessage(accessor, "无权订阅该消息通道");
+                }
+
+                boolean isGroupMember = userChatService.isGroupMember(userId, chatId);
+
+                if (BooleanUtil.isFalse(isGroupMember)) {
+                    log.error("STOMP 连接认证失败：用户无权订阅该消息通道userId:{} -> chatId:{}", userId, groupId);
+                    return buildErrorMessage(accessor, "无权订阅该消息通道");
+                }
+            }
         }
-        log.info("STOMP 命令: {}", accessor.getCommand());
+        // 设置心跳响应
+        log.info("消息指令类型：{}", accessor.getCommand());
         return message;
     }
 
+    private Message<?> buildMessage(StompHeaderAccessor accessor, String msg) {
+        byte[] payload = msg.getBytes();
+        return MessageBuilder.createMessage(payload, accessor.getMessageHeaders());
+    }
 
     // 构建错误消息并终止连接
     private Message<?> buildErrorMessage(StompHeaderAccessor accessor, String errorMsg) {
-        StompHeaderAccessor errorAccessor = StompHeaderAccessor.create(StompCommand.DISCONNECT);
+        StompHeaderAccessor errorAccessor = StompHeaderAccessor.create(StompCommand.ERROR);
         errorAccessor.setMessage(errorMsg);
         errorAccessor.setSessionId(accessor.getSessionId());
         return MessageBuilder.createMessage(new byte[0], errorAccessor.getMessageHeaders());
@@ -116,4 +172,33 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
         }
     }
 
+
+    //    @Override
+//    public boolean preReceive(MessageChannel channel) {
+//        log.error("renko.jiang.campus_life_guide.interceptor.AuthChannelInterceptor:拦截器-preReceive");
+//        return true;
+//    }
+
+//    为什么 preReceive 不触发
+//    STOMP 协议特性：
+//
+//    STOMP 是基于帧的协议，客户端主动发送消息到服务器
+//
+//    服务器通常不会"接收"消息，而是"处理"客户端主动发送的帧
+//
+//    因此 preReceive 在 STOMP 场景下很少被调用
+//
+//    WebSocket 与 STOMP 区别：
+//
+//    在纯 WebSocket 中可能会触发 preReceive
+//
+//    但使用 STOMP 子协议时，消息处理流程不同
+//
+//    消息流方向：
+//
+//    preSend：处理所有出站消息（服务器→客户端）
+//
+//    postSend：处理所有入站消息（客户端→服务器）
+//
+//    preReceive 主要用于底层通道接收控制，STOMP 场景下不适用
 }

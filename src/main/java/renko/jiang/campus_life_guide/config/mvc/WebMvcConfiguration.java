@@ -1,14 +1,12 @@
-package renko.jiang.campus_life_guide.config;
+package renko.jiang.campus_life_guide.config.mvc;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.*;
 import renko.jiang.campus_life_guide.config.json.JacksonObjectMapper;
 import renko.jiang.campus_life_guide.interceptor.PVCountInterceptor;
 import renko.jiang.campus_life_guide.interceptor.UserContextInterceptor;
@@ -24,6 +22,12 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
     @Autowired
     private UserContextInterceptor userContextInterceptor;
 
+
+    //添加统一路径前缀/api
+    @Override
+    public void configurePathMatch(PathMatchConfigurer configurer) {
+        configurer.addPathPrefix("/api", c -> c.isAnnotationPresent(RestController.class));
+    }
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {

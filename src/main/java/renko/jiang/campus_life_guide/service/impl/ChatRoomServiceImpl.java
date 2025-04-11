@@ -25,6 +25,7 @@ import renko.jiang.campus_life_guide.pojo.vo.MessageVO;
 import renko.jiang.campus_life_guide.service.ChatRoomService;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -231,7 +232,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
         //userIds
         List<Integer> userIds = userChats.stream().map(UserChat::getUserId).toList();
-        if (CollectionUtil.isEmpty(userIds)){
+        if (CollectionUtil.isEmpty(userIds)) {
             return Result.error("似乎没有群成员");
         }
 
@@ -354,4 +355,23 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return chatRoomMapper.existChatRoom(chatId) > 0;
     }
 
+
+    @Transactional
+    @Override
+    public void createGroupChatForMatch(Integer ownerId, List<Integer> userIds, String name) {
+        //1.创建一个group聊天室，并返回chatId
+        ChatRoom chatRoom = new ChatRoom();
+        chatRoom.setType("group");
+        chatRoom.setName(name + LocalDate.now());
+        long insert = chatRoomMapper.addChatRoom(chatRoom);
+        if (insert == 0) {
+            throw new RuntimeException("创建群聊失败");
+        }
+
+        //2.将成员id添加到user_chat表values (...user_id,chat_id...)
+        long insert1 = userChatMapper.addGroupChatRoom(ownerId, chatRoom.getId(), userIds);
+        if (insert1 != userIds.size() + 1) {
+            throw new RuntimeException("添加群聊失败");
+        }
+    }
 }

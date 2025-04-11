@@ -1,7 +1,6 @@
 package renko.jiang.campus_life_guide.service;
 
 
-import org.apache.ibatis.annotations.Select;
 import renko.jiang.campus_life_guide.controller.chat.ChatMessage;
 import renko.jiang.campus_life_guide.pojo.dto.GroupChatDTO;
 import renko.jiang.campus_life_guide.pojo.dto.MessageDTO;
@@ -10,7 +9,6 @@ import renko.jiang.campus_life_guide.pojo.result.Result;
 import renko.jiang.campus_life_guide.pojo.vo.ChatVO;
 import renko.jiang.campus_life_guide.pojo.vo.GroupMember;
 import renko.jiang.campus_life_guide.pojo.vo.MessageVO;
-import renko.jiang.campus_life_guide.pojo.vo.UserInfoVO;
 
 import java.util.List;
 
@@ -40,6 +38,7 @@ public interface ChatRoomService {
 
     Result exitGroupChat(Long chatId);
 
-
     boolean existChatRoom(Long chatId);
+
+    void createGroupChatForMatch(Integer ownerId, List<Integer> userIds, String name);
 }

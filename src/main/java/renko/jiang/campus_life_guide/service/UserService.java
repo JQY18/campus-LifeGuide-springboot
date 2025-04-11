@@ -11,7 +11,7 @@ import renko.jiang.campus_life_guide.pojo.vo.UserInfoVO;
 public interface UserService {
     User login(LoginDTO loginDTO);
 
-    void register(LoginDTO loginDTO);
+    Result register(LoginDTO loginDTO);
 
     UserInfoVO getUserInfoById(Integer userId);
 
@@ -30,4 +30,6 @@ public interface UserService {
     Result deleteFriend(Integer friendId);
 
     Result<Boolean> checkFriend(Integer friendId);
+
+    boolean existUserByEmail(String email);
 }

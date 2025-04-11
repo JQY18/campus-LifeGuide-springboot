@@ -1,6 +1,7 @@
 package renko.jiang.campus_life_guide.controller.user;
 
 
+import cn.hutool.core.util.StrUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -8,8 +9,12 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import renko.jiang.campus_life_guide.mail.LoginSuccessEvent;
+import renko.jiang.campus_life_guide.mail.RegisterSuccessEvent;
+import renko.jiang.campus_life_guide.mail.SendMailVerificationCodeEvent;
 import renko.jiang.campus_life_guide.pojo.dto.LoginDTO;
 import renko.jiang.campus_life_guide.pojo.dto.UserInfoDTO;
 import renko.jiang.campus_life_guide.pojo.entity.User;
@@ -34,13 +39,15 @@ public class UserController {
     @Autowired
     private JwtProperties jwtProperties;
 
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     /**
      * 登录
      *
      * @param loginDTO
      * @return
      */
-
 //    @Parameter(name = "loginDTO", description = "用户名密码", required = true)
     @Operation(summary = "登录", description = "根据用户名和密码登录，成功后返回jwt令牌")
     @PostMapping(value = "/login")
@@ -64,7 +71,36 @@ public class UserController {
         mapResult.put("token", token);
         mapResult.put("userId", user.getId());
 
+        // 登录成功后发送邮件通知
+        applicationEventPublisher.publishEvent(new LoginSuccessEvent(this, user.getEmail(), user.getUsername()));
+
         return Result.success(mapResult);
+    }
+
+
+    /**
+     * 发送验证码
+     *
+     * @param loginDTO
+     * @return
+     */
+    @Operation(summary = "发送验证码", description = "生成验证码，缓存至redis")
+    @PostMapping("/email/code")
+    public Result sendVerificationCode(@RequestBody LoginDTO loginDTO) {
+        if (loginDTO == null) {
+            return Result.error("请按要求输入");
+        }
+        if (StrUtil.isBlank(loginDTO.getEmail())) {
+            return Result.error("邮箱不能为空");
+        }
+        // 先检查邮箱是否被注册过了
+        if (userService.existUserByEmail(loginDTO.getEmail())) {
+            return Result.error("该邮箱已被注册");
+        }
+
+        // 触发验证码发送事件
+        applicationEventPublisher.publishEvent(new SendMailVerificationCodeEvent(this, loginDTO.getEmail()));
+        return Result.success();
     }
 
     /**
@@ -75,12 +111,30 @@ public class UserController {
      */
     @PostMapping("/register")
     public Result register(@RequestBody LoginDTO loginDTO) {
+        // 检查输入
+        if (loginDTO == null) {
+            return Result.error("请按要求输入");
+        }
+        // 基于安全性原则，可以使用Validation进行验证，暂时省略
         User user = userService.login(loginDTO);
         if (user != null) {
             Result.error("用户已存在");
         }
-        userService.register(loginDTO);
-        return Result.success();
+
+        // 注册用户
+        Result result = userService.register(loginDTO);
+
+        // 触发成功注册事件
+        if (result != null && result.getCode() == 1) {
+            applicationEventPublisher.publishEvent(new RegisterSuccessEvent(
+                    this,
+                    loginDTO.getEmail(),
+                    loginDTO.getUsername()
+            ));
+        }
+
+        // 注册成功
+        return result;
     }
 
     @GetMapping("/authentic")
@@ -170,7 +224,7 @@ public class UserController {
      */
 
     @Operation(summary = "添加好友")
-    @Parameter(description = "待加好友的用户id",required = true,in = ParameterIn.PATH)
+    @Parameter(description = "待加好友的用户id", required = true, in = ParameterIn.PATH)
     @PostMapping("/addFriend/{friendId}")
     public Result addFriend(@PathVariable("friendId") Integer friendId) {
         return userService.addFriend(friendId);
@@ -178,24 +232,26 @@ public class UserController {
 
     /**
      * 删除好友
+     *
      * @param friendId
      */
 
     @Operation(summary = "删除好友")
-    @Parameter(description = "待删除好友的用户id",required = true,in = ParameterIn.PATH)
+    @Parameter(description = "待删除好友的用户id", required = true, in = ParameterIn.PATH)
     @DeleteMapping("/deleteFriend/{friendId}")
-    public Result deleteFriend(@PathVariable("friendId") Integer friendId){
+    public Result deleteFriend(@PathVariable("friendId") Integer friendId) {
         return userService.deleteFriend(friendId);
     }
 
     /**
      * 检查是不是好友
+     *
      * @param friendId
      */
     @Operation(summary = "检查是不是好友")
-    @Parameter(description = "待检查好友的用户id",required = true,in = ParameterIn.PATH)
+    @Parameter(description = "待检查好友的用户id", required = true, in = ParameterIn.PATH)
     @GetMapping("/checkFriend/{friendId}")
-    public Result<Boolean> checkFriend(@PathVariable("friendId") Integer friendId){
+    public Result<Boolean> checkFriend(@PathVariable("friendId") Integer friendId) {
         return userService.checkFriend(friendId);
     }
 

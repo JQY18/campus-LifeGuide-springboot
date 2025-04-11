@@ -1,9 +1,6 @@
 package renko.jiang.campus_life_guide.mapper;
 
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Update;
+import org.apache.ibatis.annotations.*;
 import renko.jiang.campus_life_guide.pojo.dto.LoginDTO;
 import renko.jiang.campus_life_guide.pojo.dto.UserInfoDTO;
 import renko.jiang.campus_life_guide.pojo.entity.User;
@@ -18,7 +15,7 @@ public interface UserMapper {
     User queryUser(String username);
 
     //添加用户
-    @Select("insert into user (username, password, nickname) values (#{username}, #{password}, #{nickname})")
+    @Insert("insert into user (username, password, nickname,email) values (#{username}, #{password}, #{nickname},#{email})")
     void addUser(LoginDTO loginDTO);
 
     //根据uerId查询用户信息
@@ -49,4 +46,7 @@ public interface UserMapper {
 
 
     List<User> queryUserInfoByIds(List<Integer> userIds);
+
+    @Select("select count(1) from user where email = (#{email})")
+    int existUserByEmail(String email);
 }

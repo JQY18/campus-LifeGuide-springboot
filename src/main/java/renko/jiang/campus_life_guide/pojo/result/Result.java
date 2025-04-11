@@ -5,8 +5,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-
-
 @Data
 public class Result<T> implements Serializable {
     //编码：1成功，0和其它数字为失败,2用户已存在注册失败
@@ -22,6 +20,13 @@ public class Result<T> implements Serializable {
     public static <T> Result<T> success() {
         Result<T> result = new Result<T>();
         result.msg = "success";
+        result.code = 1;
+        return result;
+    }
+
+    public static Result<String> success(String msg) {
+        Result<String> result = new Result<String>();
+        result.msg = msg;
         result.code = 1;
         return result;
     }

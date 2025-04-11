@@ -1,4 +1,4 @@
-package renko.jiang.campus_life_guide.config;
+package renko.jiang.campus_life_guide.config.knife4j;
 
 
 import cn.hutool.core.util.RandomUtil;
