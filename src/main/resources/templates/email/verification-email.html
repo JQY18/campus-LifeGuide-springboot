@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册验证码</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+        .code {
+            background-color: #f0f7ff;
+            color: #2980b9;
+            font-size: 28px;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            letter-spacing: 5px;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #7f8c8d;
+            text-align: center;
+        }
+        .button {
+            display: inline-block;
+            background-color: #3498db;
+            color: white !important;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>欢迎注册我们的平台</h1>
+        </div>
+        <p>尊敬的<strong th:text="${username}">username</strong>，您好！</p>
+        <p>感谢您注册账号，请使用以下验证码完成验证：</p>
+        
+        <div class="code" th:text="${verificationCode}">verificationCode</div>
+        
+        <p>验证码将在 <strong>5分钟</strong> 后失效，请尽快使用。</p>
+        <p>如果您未进行此操作，请忽略本邮件。</p>
+        
+        <div class="footer">
+            <p>此为系统邮件，请勿直接回复。</p>
+            <p>© 2025 Shi-Zhong. 保留所有权利。</p>
+        </div>
+    </div>
+</body>
+</html>

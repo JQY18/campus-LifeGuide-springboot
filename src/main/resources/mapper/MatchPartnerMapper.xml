@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="renko.jiang.campus_life_guide.mapper.MatchPartnerMapper">
+
+    <select id="getList" resultType="renko.jiang.campus_life_guide.pojo.entity.MatchPartner"
+            parameterType="java.lang.Integer">
+        select * from match_partner
+        <where>
+            limited != current_num
+            <if test="interestId != null">
+                and interest_id = #{interestId}
+            </if>
+        </where>
+    </select>
+    <select id="getInterestsByIds" resultType="renko.jiang.campus_life_guide.pojo.entity.Interest">
+        select * from interest where id in
+        <foreach collection="interestIds" item="interestId" open="(" close=")" separator=",">
+            #{interestId}
+        </foreach>
+    </select>
+
+
+    <select id="judgeJoined" resultType="renko.jiang.campus_life_guide.pojo.entity.UserMatch">
+        select * from user_match where user_id = #{currentUserId}
+        and
+        match_id in
+        <foreach collection="matchIds" open="(" close=")" item="matchId" separator=",">
+            #{matchId}
+        </foreach>
+    </select>
+
+</mapper>

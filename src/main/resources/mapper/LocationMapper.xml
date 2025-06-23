@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="renko.jiang.campus_life_guide.mapper.LocationMapper">
+
+    <insert id="saveImages">
+        insert into location_images (location_detail_id, url) values
+        <foreach collection="images" item="image" separator=",">
+            (#{detailId},#{image})
+        </foreach>
+    </insert>
+
+    <insert id="saveVideos">
+        insert into location_videos (location_detail_id, url) values
+        <foreach collection="videos" item="video" separator=",">
+            (#{detailId},#{video})
+        </foreach>
+    </insert>
+
+    <update id="updateLocation">
+        update location
+        <set>
+            <if test="name != null and category != ''">
+                name = #{name},
+            </if>
+            <if test="x != null">
+                x = #{x},
+            </if>
+            <if test="y != null">
+                y = #{y},
+            </if>
+            <if test="description != null and category != ''">
+                description = #{description},
+            </if>
+            <if test="image != null  and category != ''">
+                image = #{image},
+            </if>
+            <if test="detailId != null">
+                detail_id = #{detailId},
+            </if>
+            <if test="category != null and category != ''">
+                category = #{category},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateLocationDetails">
+        update location_detail
+        <set>
+            <if test="name != null and category != ''">
+                name = #{name},
+            </if>
+            <if test="description != null and category != ''">
+                description = #{description},
+            </if>
+            <if test="detailId != null">
+                detail_id = #{detailId},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+
+    <select id="queryCommentsByPage"
+            resultType="renko.jiang.campus_life_guide.controller.admin.pojo.entity.DetailComment">
+        select * from detail_comment
+        <where>
+            <if test="detailCommentDTO.detailId != null">
+                and detail_id = #{detailCommentDTO.detailId}
+            </if>
+            <if test="detailCommentDTO.startTime != null and detailCommentDTO.endTime != null">
+                and create_time between #{detailCommentDTO.startTime} and #{detailCommentDTO.endTime}
+            </if>
+            <if test="detailCommentDTO.content != null">
+                and content like concat('%',#{detailCommentDTO.content},'%')
+            </if>
+        </where>
+        order by create_time desc
+        limit #{start},#{pageSize}
+    </select>
+
+
+</mapper>

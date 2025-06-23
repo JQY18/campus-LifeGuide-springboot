@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录成功</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>欢迎加入我们</h2>
+    </div>
+
+    <p>尊敬的 <strong th:text="${username}">username</strong>，</p>
+    <p>您的账号已成功登录。</p>
+    <br/>
+    <p>如果是您本人操作，请忽略此邮件。</p>
+    <br/>
+    <p>否则，请及时修改密码。</p>
+    <div class="footer">
+        <p>© 2025 shi-zhong. 保留所有权利</p>
+    </div>
+</div>
+</body>
+</html>
