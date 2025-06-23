@@ -47,5 +47,9 @@ public interface UserChatMapper {
 
     @Select("select count(1) from user_chat where user_id = #{userId} and chat_id = #{chatId}")
     long isGroupMember(Integer userId, Long chatId);
+
+    // 查找用户在群聊中的角色
+    @Select("select role from user_chat where chat_id = #{chatId} and user_id = #{userId}")
+    String getRoleInChatRoom(@Param("chatId") Long chatId, @Param("userId") Integer userId);
 }
 

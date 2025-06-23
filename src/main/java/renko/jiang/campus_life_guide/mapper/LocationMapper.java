@@ -62,9 +62,9 @@ public interface LocationMapper {
     Integer updateLocationDetails(LocationDetail locationDetail);
 
 
-    Integer saveImages(Integer id, List<String> images);
+    Integer saveImages(Integer detailId, List<String> images);
 
-    Integer saveVideos(Integer id, List<String> videos);
+    Integer saveVideos(Integer detailId, List<String> videos);
 
     @Delete("delete from location_images where url = #{imageUrl}")
     Integer deleteImage(String imageUrl);
@@ -77,5 +77,6 @@ public interface LocationMapper {
 
     List<DetailComment> queryCommentsByPage(DetailCommentDTO detailCommentDTO, int start, Integer pageSize);
 
+    @Select("select count(*) from detail_comment where detail_id = #{detailId}")
     int queryCommentsByPageCount(DetailCommentDTO detailCommentDTO);
 }

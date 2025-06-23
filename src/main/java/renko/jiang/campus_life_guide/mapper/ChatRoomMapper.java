@@ -25,5 +25,6 @@ public interface ChatRoomMapper {
 
     @Select("select count(1) from user_chat where chat_id = #{chatId}")
     int existChatRoom(Long chatId);
+
 }
 

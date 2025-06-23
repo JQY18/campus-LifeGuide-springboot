@@ -18,7 +18,6 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
-
     /***
      * 统计地点数
      *

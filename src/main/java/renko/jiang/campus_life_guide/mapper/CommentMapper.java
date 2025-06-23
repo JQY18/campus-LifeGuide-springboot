@@ -21,7 +21,7 @@ public interface CommentMapper {
     @Select("select c.*,r.nickname commenter_nickname,r.avatar commenter_avatar from comment c inner join user r on c.commenter_id = r.id where c.id = #{id}")
     CommentVO getCommentVOById(Integer id);
 
-    @Insert("insert into likes set comment_id = #{commentId},liker_id = #{likerId}")
+    @Insert("insert into likes (comment_id,liker_id ) values (#{commentId}, #{likerId})")
     void likeComment(Integer commentId, Integer likerId);
 
     // 更新评论的点赞数

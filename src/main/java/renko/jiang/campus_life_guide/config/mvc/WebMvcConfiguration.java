@@ -24,11 +24,20 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
 
     //添加统一路径前缀/api
+//    @Override
+//    public void configurePathMatch(PathMatchConfigurer configurer) {
+//        configurer.addPathPrefix("/api", c -> c.isAnnotationPresent(RestController.class));
+//    }
+
+
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {
-        configurer.addPathPrefix("/api", c -> c.isAnnotationPresent(RestController.class));
+        configurer.addPathPrefix("/api", c ->
+                c.isAnnotationPresent(RestController.class) &&
+                        !c.getPackageName().contains("springfox") && // 排除 Springfox 相关的包
+                        !c.getPackageName().contains("springdoc")    // 排除 Springdoc 相关的包
+        );
     }
-
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")

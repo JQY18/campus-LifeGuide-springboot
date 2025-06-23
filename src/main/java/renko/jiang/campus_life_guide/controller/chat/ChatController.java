@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import renko.jiang.campus_life_guide.enums.GroupRoleType;
+import renko.jiang.campus_life_guide.anno.GroupRole;
 import renko.jiang.campus_life_guide.pojo.dto.GroupChatDTO;
 import renko.jiang.campus_life_guide.pojo.dto.MessageDTO;
 import renko.jiang.campus_life_guide.pojo.entity.Message;
@@ -108,6 +110,8 @@ public class ChatController {
      *
      * @param chatId 群聊id
      */
+
+    @GroupRole(GroupRoleType.OWNER)
     @Operation(summary = "解散群聊")
     @DeleteMapping("/group/delete/{chatId}")
     public Result deleteGroupChatRoom(@PathVariable Long chatId) {
@@ -122,6 +126,7 @@ public class ChatController {
     public Result exitGroupChatRoom(@PathVariable Long chatId) {
         return chatRoomService.exitGroupChat(chatId);
     }
+
 
 
     /**

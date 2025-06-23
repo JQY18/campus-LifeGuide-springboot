@@ -18,7 +18,7 @@ public interface AdminMapper {
     @Select("select * from admin where id = #{id}")
     Admin getAdminById(Integer id);
 
-    @Select("update admin set password = #{newPassword} where id = #{id}")
+    @Update("update admin set password = #{newPassword} where id = #{id}")
     void updatePassword(Integer id, String newPassword);
 
     @Select("select * from admin order by location_id asc, created_time desc")
